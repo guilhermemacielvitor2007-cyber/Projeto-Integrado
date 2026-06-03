@@ -1,0 +1,143 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" width="900" height="420" font-family="Arial, sans-serif">
+
+  <!-- Background -->
+  <rect width="900" height="420" fill="#F0F3F4"/>
+
+  <!-- Title -->
+  <text x="450" y="30" text-anchor="middle" font-size="16" font-weight="bold" fill="#1B2631">Fluxo de Backup — Regra 3-2-1 — VitaClínica</text>
+  <line x1="100" y1="38" x2="800" y2="38" stroke="#AAB7B8" stroke-width="1"/>
+
+  <!-- ===== SUBTITLE / RULE EXPLANATION ===== -->
+  <rect x="220" y="46" width="460" height="24" rx="4" fill="#1B2631"/>
+  <text x="450" y="63" text-anchor="middle" font-size="11" fill="white">
+    <tspan font-weight="bold">3</tspan> cópias  ·
+    <tspan font-weight="bold">2</tspan> mídias distintas  ·
+    <tspan font-weight="bold">1</tspan> cópia off-site
+  </text>
+
+  <!-- ============================= -->
+  <!-- BOX 0: DADOS ORIGINAIS        -->
+  <!-- ============================= -->
+  <rect x="30" y="120" width="140" height="170" rx="8" fill="#1C2833" stroke="#2E4057" stroke-width="2"/>
+  <text x="100" y="143" text-anchor="middle" font-size="11" font-weight="bold" fill="white">Dados</text>
+  <text x="100" y="157" text-anchor="middle" font-size="11" font-weight="bold" fill="white">Originais</text>
+  <!-- Server icon inside -->
+  <rect x="52" y="168" width="96" height="80" rx="3" fill="#2C3E50"/>
+  <rect x="57" y="175" width="86" height="8" rx="1" fill="#5D6D7E"/>
+  <rect x="57" y="187" width="86" height="8" rx="1" fill="#5D6D7E"/>
+  <rect x="57" y="199" width="86" height="8" rx="1" fill="#5D6D7E"/>
+  <rect x="57" y="211" width="86" height="8" rx="1" fill="#5D6D7E"/>
+  <circle cx="133" cy="237" r="5" fill="#2ECC71"/>
+  <!-- Label bottom -->
+  <text x="100" y="306" text-anchor="middle" font-size="9" fill="#AAB7B8">Servidores</text>
+  <text x="100" y="318" text-anchor="middle" font-size="9" fill="#AAB7B8">VitaClínica</text>
+
+  <!-- ===== ARROW 0→1 ===== -->
+  <line x1="170" y1="205" x2="218" y2="205" stroke="#2E4057" stroke-width="2.5"/>
+  <polygon points="218,199 232,205 218,211" fill="#2E4057"/>
+  <text x="201" y="195" text-anchor="middle" font-size="8" fill="#5D6D7E">backup</text>
+  <text x="201" y="220" text-anchor="middle" font-size="8" fill="#5D6D7E">automático</text>
+
+  <!-- ============================= -->
+  <!-- BOX 1: NAS LOCAL (CÓPIA 1)    -->
+  <!-- ============================= -->
+  <rect x="232" y="100" width="158" height="210" rx="8" fill="#EAF2FB" stroke="#2471A3" stroke-width="2"/>
+  <!-- Badge -->
+  <rect x="245" y="108" width="132" height="22" rx="4" fill="#2471A3"/>
+  <text x="311" y="123" text-anchor="middle" font-size="10" font-weight="bold" fill="white">CÓPIA 1</text>
+  <text x="311" y="148" text-anchor="middle" font-size="11" font-weight="bold" fill="#1A5276">NAS Local</text>
+  <!-- NAS icon -->
+  <rect x="260" y="158" width="102" height="80" rx="4" fill="#1A5276"/>
+  <rect x="266" y="166" width="90" height="14" rx="2" fill="#2E86C1"/>
+  <rect x="266" y="184" width="90" height="14" rx="2" fill="#2E86C1"/>
+  <rect x="266" y="202" width="90" height="14" rx="2" fill="#2E86C1"/>
+  <circle cx="349" cy="230" r="4" fill="#2ECC71"/>
+  <!-- Details -->
+  <text x="311" y="258" text-anchor="middle" font-size="9" fill="#1B2631">Mídia: Disco (NAS)</text>
+  <text x="311" y="270" text-anchor="middle" font-size="9" fill="#117A65" font-weight="bold">On-site</text>
+  <text x="311" y="283" text-anchor="middle" font-size="8" fill="#5D6D7E">Retenção: 90 dias</text>
+  <text x="311" y="295" text-anchor="middle" font-size="8" fill="#5D6D7E">AES-256</text>
+  <!-- Media label -->
+  <rect x="245" y="302" width="132" height="3" rx="1" fill="#2471A3"/>
+
+  <!-- ===== ARROW 1→2 ===== -->
+  <line x1="390" y1="205" x2="438" y2="205" stroke="#2E4057" stroke-width="2.5"/>
+  <polygon points="438,199 452,205 438,211" fill="#2E4057"/>
+  <text x="421" y="195" text-anchor="middle" font-size="8" fill="#5D6D7E">rsync /</text>
+  <text x="421" y="220" text-anchor="middle" font-size="8" fill="#5D6D7E">AWS CLI</text>
+
+  <!-- ============================= -->
+  <!-- BOX 2: NUVEM (CÓPIA 2)        -->
+  <!-- ============================= -->
+  <rect x="452" y="100" width="158" height="210" rx="8" fill="#EBF5FB" stroke="#1565C0" stroke-width="2"/>
+  <!-- Badge -->
+  <rect x="465" y="108" width="132" height="22" rx="4" fill="#1565C0"/>
+  <text x="531" y="123" text-anchor="middle" font-size="10" font-weight="bold" fill="white">CÓPIA 2</text>
+  <text x="531" y="148" text-anchor="middle" font-size="11" font-weight="bold" fill="#1565C0">Amazon S3</text>
+  <!-- Cloud icon -->
+  <ellipse cx="531" cy="195" rx="48" ry="22" fill="#D6EAF8" stroke="#1565C0" stroke-width="1.5"/>
+  <ellipse cx="497" cy="202" rx="28" ry="18" fill="#D6EAF8" stroke="#1565C0" stroke-width="1.5"/>
+  <ellipse cx="565" cy="202" rx="28" ry="18" fill="#D6EAF8" stroke="#1565C0" stroke-width="1.5"/>
+  <rect x="480" y="202" width="102" height="16" fill="#D6EAF8"/>
+  <text x="531" y="198" text-anchor="middle" font-size="10" font-weight="bold" fill="#1565C0">S3</text>
+  <text x="531" y="210" text-anchor="middle" font-size="8" fill="#5D6D7E">sa-east-1</text>
+  <!-- Details -->
+  <text x="531" y="240" text-anchor="middle" font-size="9" fill="#1B2631">Mídia: Nuvem</text>
+  <text x="531" y="252" text-anchor="middle" font-size="9" fill="#117A65" font-weight="bold">Off-site Remoto</text>
+  <text x="531" y="265" text-anchor="middle" font-size="8" fill="#5D6D7E">Retenção: 90 dias</text>
+  <text x="531" y="277" text-anchor="middle" font-size="8" fill="#5D6D7E">TLS + AES-256</text>
+  <text x="531" y="289" text-anchor="middle" font-size="8" fill="#5D6D7E">Durabilidade: 99,999999999%</text>
+  <rect x="465" y="302" width="132" height="3" rx="1" fill="#1565C0"/>
+
+  <!-- ===== ARROW 2→3 ===== -->
+  <line x1="610" y1="205" x2="658" y2="205" stroke="#2E4057" stroke-width="2.5"/>
+  <polygon points="658,199 672,205 658,211" fill="#2E4057"/>
+  <text x="641" y="195" text-anchor="middle" font-size="8" fill="#5D6D7E">rotação</text>
+  <text x="641" y="220" text-anchor="middle" font-size="8" fill="#5D6D7E">semanal</text>
+
+  <!-- ============================= -->
+  <!-- BOX 3: HD OFF-SITE (CÓPIA 3)  -->
+  <!-- ============================= -->
+  <rect x="672" y="100" width="158" height="210" rx="8" fill="#EAFAF1" stroke="#1E8449" stroke-width="2"/>
+  <!-- Badge -->
+  <rect x="685" y="108" width="132" height="22" rx="4" fill="#1E8449"/>
+  <text x="751" y="123" text-anchor="middle" font-size="10" font-weight="bold" fill="white">CÓPIA 3</text>
+  <text x="751" y="148" text-anchor="middle" font-size="11" font-weight="bold" fill="#1E8449">HD Off-site</text>
+  <!-- HD icon -->
+  <rect x="700" y="158" width="102" height="75" rx="6" fill="#1E8449"/>
+  <rect x="706" y="166" width="90" height="55" rx="3" fill="#27AE60"/>
+  <circle cx="751" cy="193" r="18" fill="#1E8449" stroke="#A9DFBF" stroke-width="1.5"/>
+  <circle cx="751" cy="193" r="8" fill="#27AE60"/>
+  <circle cx="751" cy="193" r="3" fill="#1E8449"/>
+  <rect x="706" y="218" width="90" height="6" rx="2" fill="#1E8449"/>
+  <!-- Padlock icon (encryption) -->
+  <rect x="776" y="162" width="16" height="14" rx="2" fill="#F39C12"/>
+  <path d="M779 162 Q779 156 784 156 Q789 156 789 162" stroke="#F39C12" stroke-width="2.5" fill="none"/>
+  <!-- Details -->
+  <text x="751" y="250" text-anchor="middle" font-size="9" fill="#1B2631">Mídia: Disco Externo</text>
+  <text x="751" y="262" text-anchor="middle" font-size="9" fill="#117A65" font-weight="bold">Off-site Físico (30+ km)</text>
+  <text x="751" y="275" text-anchor="middle" font-size="8" fill="#5D6D7E">Rotação: semanal</text>
+  <text x="751" y="287" text-anchor="middle" font-size="8" fill="#5D6D7E">AES-256 + transporte seguro</text>
+  <text x="751" y="299" text-anchor="middle" font-size="8" fill="#5D6D7E">Proteção: desastre físico</text>
+  <rect x="685" y="302" width="132" height="3" rx="1" fill="#1E8449"/>
+
+  <!-- ===== BOTTOM SUMMARY BAR ===== -->
+  <rect x="30" y="340" width="840" height="58" rx="6" fill="#1B2631"/>
+  <!-- Section 3 copies -->
+  <text x="170" y="362" text-anchor="middle" font-size="12" font-weight="bold" fill="#F7DC6F">3 CÓPIAS</text>
+  <text x="170" y="378" text-anchor="middle" font-size="9" fill="#AAB7B8">Original + NAS + Nuvem + HD</text>
+  <text x="170" y="390" text-anchor="middle" font-size="8" fill="#5D6D7E">(dados originais + 3 backups)</text>
+  <!-- Divider -->
+  <line x1="340" y1="348" x2="340" y2="390" stroke="#5D6D7E" stroke-width="1"/>
+  <!-- Section 2 media -->
+  <text x="450" y="362" text-anchor="middle" font-size="12" font-weight="bold" fill="#82E0AA">2 MÍDIAS DISTINTAS</text>
+  <text x="450" y="378" text-anchor="middle" font-size="9" fill="#AAB7B8">Disco (NAS/HD) + Nuvem (Amazon S3)</text>
+  <text x="450" y="390" text-anchor="middle" font-size="8" fill="#5D6D7E">(diversificação de suporte)</text>
+  <!-- Divider -->
+  <line x1="560" y1="348" x2="560" y2="390" stroke="#5D6D7E" stroke-width="1"/>
+  <!-- Section 1 offsite -->
+  <text x="720" y="362" text-anchor="middle" font-size="12" font-weight="bold" fill="#85C1E9">1 CÓPIA OFF-SITE</text>
+  <text x="720" y="378" text-anchor="middle" font-size="9" fill="#AAB7B8">HD externo a 30+ km das unidades</text>
+  <text x="720" y="390" text-anchor="middle" font-size="8" fill="#5D6D7E">(proteção contra desastres físicos)</text>
+
+</svg>
