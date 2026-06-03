@@ -1,7 +1,7 @@
 # Plano de Backup e Continuidade de Negócios (BCP/DRP) — VitaClínica
 
 > **Projeto Integrado II** — Tecnologia em Análise e Desenvolvimento de Sistemas (TADS)
-> Anhanguera | Semestre 1/2026 | Professor Roberto Maia
+> Anhanguera | Semestre 2/2026 | Professor Roberto Maia
 
 ---
 
@@ -20,10 +20,10 @@ O projeto cobre o ciclo completo de planejamento de continuidade: levantamento d
 | Nome | Papel |
 |------|-------|
 | Filipe Oliveira Crepaldi dos Santos | Líder do Sprint |
-| Bruno Vila | Responsável pela Documentação ABNT |
-| Guilherme Maciel | Responsável Técnico |
-| Rafael | Responsável por Evidências |
-| Yan | Apoio Técnico e Revisão |
+| Bruno Vila de Oliveira | Responsável pela Documentação ABNT |
+| Guilherme Maciel Vitor | Responsável Técnico |
+| Raphael Duarte Oliveira | Responsável por Evidências |
+| Yan Victor Souza Santos | Apoio Técnico e Revisão |
 
 ---
 
