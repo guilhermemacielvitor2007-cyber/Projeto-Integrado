@@ -59,15 +59,15 @@ Projeto-Integrado/
 │   ├── diagrama_topologia.svg                 → Topologia da rede das duas unidades
 │   ├── diagrama_fluxo_backup.svg              → Fluxo da estratégia de backup 3-2-1
 │   ├── diagrama_fluxo_ativacao_bcp.svg        → Fluxo de ativação do BCP/DRP (3 cenários)
-│   ├── tabela_gap_analysis.svg                → Matriz de análise de gaps (6 ativos × 5 dimensões)
-│   ├── guia_resposta_incidentes.html          → Guia interativo de resposta a incidentes
-│   └── apresentacao_slides.html              → Apresentação de slides para a defesa (14 slides)
+│   └── tabela_gap_analysis.svg                → Matriz de análise de gaps (6 ativos × 5 dimensões)
 │
 ├── scripts/                                   → Scripts de automação (bash)
 │   ├── backup_pep.sh                          → Backup automatizado do PEP com criptografia AES-256
 │   └── teste_restauracao.sh                   → Teste mensal de restauração com validação SHA-256
 │
-├── src/                                       → Reservado (não utilizado neste projeto)
+├── src/                                       → Ferramentas interativas (código HTML/CSS/JS)
+│   ├── guia_resposta_incidentes.html          → Guia interativo de resposta a incidentes
+│   └── apresentacao_slides.html              → Apresentação de slides para a defesa (14 slides)
 └── README.md                                  → Este arquivo
 ```
 
@@ -129,7 +129,7 @@ docs/plano_inicial.md
 Abrir no navegador:
 
 ```
-evidencias/apresentacao_slides.html
+src/apresentacao_slides.html
 ```
 
 Navegação: **seta direita / clique** para avançar · **seta esquerda** para voltar · **Ctrl+P** para imprimir.
@@ -137,7 +137,7 @@ Navegação: **seta direita / clique** para avançar · **seta esquerda** para v
 ### Guia operacional de resposta a incidentes
 
 ```
-evidencias/guia_resposta_incidentes.html
+src/guia_resposta_incidentes.html
 ```
 
 Ferramenta interativa com checklists, cronômetro de RTO e modo de incidente.
