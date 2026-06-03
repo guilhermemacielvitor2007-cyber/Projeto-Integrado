@@ -184,5 +184,5 @@ SÊMOLA, Marcos. **Gestão da Segurança da Informação**: uma visão executiva
 
 ---
 
-> *Projeto acadêmico — TADS Anhanguera | Semestre 1/2026*
+> *Projeto acadêmico — TADS Anhanguera | Semestre 2/2026*
 > *Todos os dados da VitaClínica (nomes, endereços, CNPJs, IPs) são fictícios.*
