@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VitaClínica — Guia de Resposta a Incidentes</title>
+  <style>
+    :root {
+      --blue-dark:   #1e3a5f;
+      --blue:        #2563eb;
+      --blue-light:  #dbeafe;
+      --red-dark:    #7f1d1d;
+      --red:         #dc2626;
+      --red-light:   #fee2e2;
+      --orange-dark: #7c2d12;
+      --orange:      #ea580c;
+      --orange-light:#ffedd5;
+      --green:       #16a34a;
+      --green-light: #dcfce7;
+      --gray-50:     #f8fafc;
+      --gray-100:    #f1f5f9;
+      --gray-200:    #e2e8f0;
+      --gray-400:    #94a3b8;
+      --gray-600:    #475569;
+      --gray-800:    #1e293b;
+      --white:       #ffffff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: var(--gray-100);
+      color: var(--gray-800);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--blue-dark);
+      color: white;
+      padding: 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    }
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+    }
+    .header-brand { display: flex; align-items: center; gap: 12px; }
+    .brand-icon {
+      width: 40px; height: 40px;
+      background: white;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+    .brand-name { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+    .brand-sub  { font-size: 12px; color: #93c5fd; margin-top: 1px; }
+    .header-meta { text-align: right; font-size: 11px; color: #93c5fd; }
+    .header-meta strong { display: block; font-size: 13px; color: white; margin-bottom: 2px; }
+
+    /* ── INCIDENT BANNER ── */
+    #incident-banner {
+      display: none;
+      background: var(--red);
+      color: white;
+      text-align: center;
+      padding: 10px 24px;
+      font-weight: 700;
+      font-size: 13px;
+      animation: pulse-bg 1.5s ease-in-out infinite;
+    }
+    #incident-banner.active { display: block; }
+    @keyframes pulse-bg {
+      0%, 100% { background: #dc2626; }
+      50%       { background: #b91c1c; }
+    }
+
+    /* ── MODE TOGGLE BAR ── */
+    .mode-bar {
+      background: #0f2744;
+      padding: 8px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .mode-bar span { font-size: 12px; color: #93c5fd; }
+    .toggle-btn {
+      padding: 5px 16px;
+      border-radius: 20px;
+      border: none;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .toggle-btn.normal  { background: #374151; color: #9ca3af; }
+    .toggle-btn.active  { background: var(--red); color: white; box-shadow: 0 0 10px rgba(220,38,38,0.5); }
+    .mode-hint { margin-left: auto; font-size: 11px; color: #64748b; }
+
+    /* ── MAIN LAYOUT ── */
+    main { max-width: 1200px; margin: 0 auto; padding: 20px 16px; }
+
+    /* ── QUICK METRICS BAR ── */
+    .metrics-bar {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .metric-card {
+      background: white;
+      border-radius: 8px;
+      padding: 10px 12px;
+      text-align: center;
+      border-top: 3px solid;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    .metric-card .asset { font-size: 10px; color: var(--gray-400); font-weight: 600; text-transform: uppercase; }
+    .metric-card .rto   { font-size: 18px; font-weight: 800; line-height: 1.2; }
+    .metric-card .rpo   { font-size: 10px; color: var(--gray-600); }
+    .metric-card.critical { border-color: var(--red); }
+    .metric-card.critical .rto { color: var(--red); }
+    .metric-card.high    { border-color: var(--orange); }
+    .metric-card.high .rto { color: var(--orange); }
+
+    /* ── SECTION TITLE ── */
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+      padding-left: 4px;
+    }
+
+    /* ── SCENARIO GRID ── */
+    .scenarios { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+
+    .scenario-card {
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: box-shadow 0.2s;
+    }
+    .scenario-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.13); }
+
+    .scenario-header {
+      padding: 16px 18px;
+      color: white;
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .scenario-header .icon { font-size: 28px; line-height: 1; }
+    .scenario-header .info { flex: 1; }
+    .scenario-header .label { font-size: 10px; font-weight: 700; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px; }
+    .scenario-header .name  { font-size: 17px; font-weight: 800; line-height: 1.2; margin: 3px 0; }
+    .scenario-header .tags  { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+    .tag { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; background: rgba(255,255,255,0.2); }
+    .scenario-header .chevron { font-size: 18px; opacity: 0.7; margin-top: 4px; transition: transform 0.25s; }
+    .scenario-card.open .chevron { transform: rotate(180deg); }
+
+    .scenario-card.blue   .scenario-header { background: linear-gradient(135deg, #1d4ed8, #1e40af); }
+    .scenario-card.red    .scenario-header { background: linear-gradient(135deg, #dc2626, #991b1b); }
+    .scenario-card.orange .scenario-header { background: linear-gradient(135deg, #ea580c, #c2410c); }
+
+    /* ── ACTIVATE BUTTON ── */
+    .activate-row {
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--gray-200);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .activate-btn {
+      flex: 1;
+      padding: 9px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: all 0.2s;
+    }
+    .scenario-card.blue   .activate-btn { background: var(--blue); color: white; }
+    .scenario-card.red    .activate-btn { background: var(--red);  color: white; }
+    .scenario-card.orange .activate-btn { background: var(--orange); color: white; }
+    .activate-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    .activate-btn.activated { background: var(--green) !important; }
+
+    .reset-btn {
+      padding: 9px 14px;
+      border: 1px solid var(--gray-200);
+      background: white;
+      border-radius: 6px;
+      font-size: 11px;
+      color: var(--gray-600);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .reset-btn:hover { background: var(--gray-100); }
+
+    /* ── TIMER ── */
+    .timer-row {
+      display: none;
+      padding: 8px 18px;
+      background: var(--gray-50);
+      border-bottom: 1px solid var(--gray-200);
+      align-items: center;
+      gap: 10px;
+    }
+    .timer-row.visible { display: flex; }
+    .timer-label { font-size: 11px; color: var(--gray-600); }
+    .timer-display {
+      font-size: 22px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: var(--gray-800);
+      min-width: 80px;
+    }
+    .timer-rto { font-size: 10px; color: var(--gray-400); margin-left: auto; }
+    .timer-display.warning { color: var(--orange); }
+    .timer-display.danger  { color: var(--red); }
+
+    /* ── PROGRESS BAR ── */
+    .progress-row {
+      padding: 10px 18px;
+      border-bottom: 1px solid var(--gray-200);
+      display: none;
+    }
+    .progress-row.visible { display: block; }
+    .progress-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--gray-600); margin-bottom: 5px; }
+    .progress-track { background: var(--gray-200); border-radius: 4px; height: 7px; overflow: hidden; }
+    .progress-fill  { height: 100%; border-radius: 4px; transition: width 0.3s ease; }
+    .scenario-card.blue   .progress-fill { background: var(--blue); }
+    .scenario-card.red    .progress-fill { background: var(--red); }
+    .scenario-card.orange .progress-fill { background: var(--orange); }
+
+    /* ── CHECKLIST ── */
+    .checklist-body { display: none; padding: 14px 18px; }
+    .checklist-body.visible { display: block; }
+
+    .step {
+      display: flex;
+      gap: 12px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--gray-100);
+      align-items: flex-start;
+      cursor: pointer;
+      transition: background 0.15s;
+      border-radius: 4px;
+      padding-left: 4px;
+    }
+    .step:last-child { border-bottom: none; }
+    .step:hover { background: var(--gray-50); }
+
+    .step input[type="checkbox"] {
+      width: 18px; height: 18px;
+      margin-top: 1px;
+      flex-shrink: 0;
+      cursor: pointer;
+      accent-color: var(--green);
+    }
+    .step-num {
+      min-width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: 0;
+    }
+    .scenario-card.blue   .step-num { background: var(--blue-light); color: var(--blue); }
+    .scenario-card.red    .step-num { background: var(--red-light);  color: var(--red); }
+    .scenario-card.orange .step-num { background: var(--orange-light); color: var(--orange-dark); }
+
+    .step-content .title    { font-size: 13px; font-weight: 600; color: var(--gray-800); }
+    .step-content .subtitle { font-size: 11px; color: var(--gray-600); margin-top: 1px; }
+    .step-content .resp     { font-size: 10px; color: var(--gray-400); margin-top: 3px; }
+
+    .step.done .step-content .title    { text-decoration: line-through; color: var(--gray-400); }
+    .step.done .step-content .subtitle { text-decoration: line-through; color: var(--gray-200); }
+
+    .alert-step {
+      background: var(--red-light);
+      border-left: 4px solid var(--red);
+      border-radius: 4px;
+      padding: 8px 12px;
+      margin: 6px 0;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--red-dark);
+    }
+
+    /* ── BOTTOM GRID ── */
+    .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+
+    .panel {
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+    .panel-header {
+      padding: 12px 18px;
+      background: var(--blue-dark);
+      color: white;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .panel-body { padding: 16px 18px; }
+
+    /* ── CONTACTS ── */
+    .contacts { display: flex; flex-direction: column; gap: 8px; }
+    .contact-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      background: var(--gray-50);
+      border-radius: 8px;
+      border: 1px solid var(--gray-200);
+    }
+    .contact-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      font-size: 14px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      color: white;
+    }
+    .contact-card:nth-child(1) .contact-avatar { background: #1d4ed8; }
+    .contact-card:nth-child(2) .contact-avatar { background: #0f766e; }
+    .contact-card:nth-child(3) .contact-avatar { background: #7c3aed; }
+    .contact-card:nth-child(4) .contact-avatar { background: #b45309; }
+    .contact-card:nth-child(5) .contact-avatar { background: #be185d; }
+    .contact-card:nth-child(6) .contact-avatar { background: var(--red); }
+    .contact-info .name { font-size: 13px; font-weight: 600; }
+    .contact-info .role { font-size: 11px; color: var(--gray-400); }
+    .contact-phone {
+      margin-left: auto;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--blue);
+      white-space: nowrap;
+    }
+
+    /* ── RPO/RTO TABLE ── */
+    .rto-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .rto-table th {
+      text-align: left;
+      padding: 7px 10px;
+      background: var(--gray-100);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--gray-600);
+    }
+    .rto-table td { padding: 8px 10px; border-bottom: 1px solid var(--gray-100); }
+    .rto-table tr:last-child td { border-bottom: none; }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 700;
+    }
+    .badge.critical { background: var(--red-light);    color: var(--red); }
+    .badge.high     { background: var(--orange-light);  color: var(--orange-dark); }
+    .badge.medium   { background: #fef9c3;             color: #854d0e; }
+    .rto-value { font-weight: 700; }
+
+    /* ── EMERGENCY NUMBERS ── */
+    .emergency-list { display: flex; flex-direction: column; gap: 6px; }
+    .emergency-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid;
+    }
+    .emergency-item.red    { background: var(--red-light);    border-color: #fca5a5; }
+    .emergency-item.blue   { background: var(--blue-light);   border-color: #93c5fd; }
+    .emergency-item.orange { background: var(--orange-light); border-color: #fdba74; }
+    .emergency-item .e-name  { font-size: 12px; font-weight: 600; }
+    .emergency-item .e-number { font-size: 18px; font-weight: 800; letter-spacing: 1px; }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 16px;
+      font-size: 11px;
+      color: var(--gray-400);
+      border-top: 1px solid var(--gray-200);
+      background: white;
+      margin-top: 8px;
+    }
+    footer strong { color: var(--gray-600); }
+
+    /* ── PRINT ── */
+    @media print {
+      header { position: static; }
+      .mode-bar, .activate-row, .reset-btn, .timer-row { display: none !important; }
+      .checklist-body { display: block !important; }
+      .scenarios { grid-template-columns: 1fr; }
+      .bottom-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .scenarios    { grid-template-columns: 1fr; }
+      .bottom-grid  { grid-template-columns: 1fr; }
+      .metrics-bar  { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════
+     HEADER
+════════════════════════════════════════════════ -->
+<header>
+  <div class="header-top">
+    <div class="header-brand">
+      <div class="brand-icon">🏥</div>
+      <div>
+        <div class="brand-name">VitaClínica</div>
+        <div class="brand-sub">Guia de Resposta a Incidentes — BCP/DRP</div>
+      </div>
+    </div>
+    <div class="header-meta">
+      <strong>Versão 1.0 — Sprint 4</strong>
+      Projeto Integrado II · TADS Anhanguera · 2026
+    </div>
+  </div>
+
+  <div id="incident-banner">
+    ⚠️ MODO INCIDENTE ATIVO — Siga os procedimentos abaixo. Ligue imediatamente para Guilherme Maciel (Resp. Técnico).
+  </div>
+
+  <div class="mode-bar">
+    <span>Modo de operação:</span>
+    <button class="toggle-btn normal" id="toggle-normal" onclick="setMode('normal')">NORMAL</button>
+    <button class="toggle-btn" id="toggle-incident" onclick="setMode('incident')">INCIDENTE</button>
+    <span class="mode-hint">Ative o Modo Incidente para iniciar os procedimentos</span>
+  </div>
+</header>
+
+<!-- ════════════════════════════════════════════════
+     MAIN
+════════════════════════════════════════════════ -->
+<main>
+
+  <!-- ── QUICK METRICS ── -->
+  <div class="section-title">Metas de Recuperação por Ativo</div>
+  <div class="metrics-bar">
+    <div class="metric-card critical">
+      <div class="asset">A01 — PEP</div>
+      <div class="rto">2h</div>
+      <div class="rpo">RPO: 1h</div>
+    </div>
+    <div class="metric-card critical">
+      <div class="asset">A02 — BD Pacientes</div>
+      <div class="rto">2h</div>
+      <div class="rpo">RPO: 1h</div>
+    </div>
+    <div class="metric-card critical">
+      <div class="asset">A05 — Laudos</div>
+      <div class="rto">4h</div>
+      <div class="rpo">RPO: 4h</div>
+    </div>
+    <div class="metric-card high">
+      <div class="asset">A03 — Agendamento</div>
+      <div class="rto">4h</div>
+      <div class="rpo">RPO: 4h</div>
+    </div>
+    <div class="metric-card high">
+      <div class="asset">A04 — Financeiro</div>
+      <div class="rto">8h</div>
+      <div class="rpo">RPO: 8h</div>
+    </div>
+    <div class="metric-card high">
+      <div class="asset">A06 — VPN</div>
+      <div class="rto">2h</div>
+      <div class="rpo">RPO: N/A</div>
+    </div>
+  </div>
+
+  <!-- ── SCENARIOS ── -->
+  <div class="section-title">Cenários de Desastre</div>
+  <div class="scenarios">
+
+    <!-- ── CENÁRIO 1: Falha de Hardware ── -->
+    <div class="scenario-card blue" id="card-1">
+      <div class="scenario-header" onclick="toggleCard(1)">
+        <div class="icon">🖥️</div>
+        <div class="info">
+          <div class="label">Cenário 1 · Risco P1</div>
+          <div class="name">Falha de Hardware</div>
+          <div class="tags">
+            <span class="tag">RTO: 2h</span>
+            <span class="tag">RPO: 1h</span>
+            <span class="tag">Fonte: NAS</span>
+          </div>
+        </div>
+        <div class="chevron">▼</div>
+      </div>
+
+      <div class="activate-row">
+        <button class="activate-btn" id="activate-1" onclick="activateScenario(1)">
+          ▶ Ativar Cenário 1
+        </button>
+        <button class="reset-btn" onclick="resetScenario(1)">↺ Resetar</button>
+      </div>
+
+      <div class="timer-row" id="timer-row-1">
+        <div class="timer-label">Tempo decorrido:</div>
+        <div class="timer-display" id="timer-1">00:00</div>
+        <div class="timer-rto">Meta RTO: 2h00</div>
+      </div>
+
+      <div class="progress-row" id="progress-row-1">
+        <div class="progress-meta">
+          <span id="progress-label-1">0 de 8 etapas concluídas</span>
+          <span id="progress-pct-1">0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill-1" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div class="checklist-body" id="checklist-1">
+        <div class="step" onclick="toggleStep(this)">
+          <input type="checkbox"><div class="step-num">1</div>
+          <div class="step-content">
+            <div class="title">Confirmar a natureza da falha</div>
+            <div class="subtitle">Acesso físico ao servidor — verificar LEDs, logs do sistema, tentativa de ping</div>
+            <div class="resp">Guilherme Maciel · até 15 min</div>
+          </div>
+        </div>
+        <div class="step" onclick="toggleStep(this)">
+          <input type="checkbox"><div class="step-num">2</div>
+          <div class="step-content">
+            <div class="title">Comunicar o Líder do Sprint e a direção</div>
+            <div class="subtitle">Filipe Santos + Direção VitaClínica</div>
+            <div class="resp">Filipe Santos · até 20 min</div>
+          </div>
+        </div>
+        <div class="step" onclick="toggleStep(this)">
+          <input type="checkbox"><div class="step-num">3</div>
+          <div class="step-content">
+            <div class="title">Ativar o servidor de contingência</div>
+            <div class="subtitle">Hardware sobressalente pré-configurado — ver ficha no binder físico</div>
+            <div class="resp">Guilherme Maciel · até 30 min</div>
+          </div>
+        </div>
+        <div class="step" onclick="toggleStep(this)">
+          <input type="checkbox"><div class="step-num">4</div>
+          <div class="step-content">
+            <div class="title">Restaurar backup do PEP e do banco de dados</div>
+            <div class="subtitle">Fonte primária: NAS local (Cópia 1). Alternativa: Amazon S3 (Cópia 2)</div>
+            <div class="resp">Guilherme + Yan · até 60 min</div>
+          </div>
+        </div>
+        <div class="step" onclick="toggleStep(this)">
+          <input type="checkbox"><div class="step-num">5</div>
+          <div class="step-content">
+            <div class="title">Verificar integridade dos dados restaurados</div>
+            <div class="subtitle">Checksum SHA-256 + testes funcionais de abertura de prontuários</div>
+            <div class="resp">Guilherme Maciel · até 20 min</div>
+          </div>
+        </div>
+        <div class="step" onclick="toggleStep(this)">
+          <input type="checkbox"><div class="step-num">6</div>
+          <div class="step-content">
+            <div class="title">Redirecionar estações de trabalho</div>
+            <div class="subtitle">Atualizar entradas DNS internas para apontar para o servidor de contingência</div>
+            <div class="resp">Yan · até 10 min</div>
+          </div>
+        </div>
+        <div class="step" onclick="toggleStep(this)">
+          <input type="checkbox"><div class="step-num">7</div>
+          <div class="step-content">
+            <div class="title">Comunicar retorno à operação</div>
+            <div class="subtitle">Notificar recepção e médicos das duas unidades</div>
+            <div class="resp">Filipe Santos · 5 min</div>
+          </div>
+        </div>
+        <div class="step" onclick="toggleStep(this)">
+          <input type="checkbox"><div class="step-num">8</div>
+          <div class="step-content">
+            <div class="title">Registrar o incidente</div>
+            <div class="subtitle">Preencher formulário Registro de Incidente (Sprint 4, Seção 5.1)</div>
+            <div class="resp">Filipe Santos · após retomada</div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /card-1 -->
+
+    <!-- ── CENÁRIO 2: Ransomware ── -->
+    <div class="scenario-card red" id="card-2">
+      <div class="scenario-header" onclick="toggleCard(2)">
+        <div class="icon">🔒</div>
+        <div class="info">
+          <div class="label">Cenário 2 · Risco P1 · CRÍTICO</div>
+          <div class="name">Ransomware</div>
+          <div class="tags">
+            <span class="tag">RTO: 8h</span>
+            <span class="tag">RPO: 1h</span>
+            <span class="tag">Fonte: S3</span>
+          </div>
+        </div>
+        <div class="chevron">▼</div>
+      </div>
+
+      <div class="activate-row">
+        <button class="activate-btn" id="activate-2" onclick="activateScenario(2)">
+          ▶ Ativar Cenário 2
+        </button>
+        <button class="reset-btn" onclick="resetScenario(2)">↺ Resetar</button>
+      </div>
+
+      <div class="timer-row" id="timer-row-2">
+        <div class="timer-label">Tempo decorrido:</div>
+        <div class="timer-display" id="timer-2">00:00</div>
+        <div class="timer-rto">Meta RTO: 8h00</div>
+      </div>
+
+      <div class="progress-row" id="progress-row-2">
+        <div class="progress-meta">
+          <span id="progress-label-2">0 de 11 etapas concluídas</span>
+          <span id="progress-pct-2">0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill-2" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div class="checklist-body" id="checklist-2">
+        <div class="alert-step">⚠️ REGRA DE OURO: NUNCA PAGAR O RESGATE. Não garante recuperação e financia criminosos.</div>
+        <div class="step" onclick="toggleStep(this)">
+          <input type="checkbox"><div class="step-num">1</div>
+          <div class="step-content">
+            <div class="title">ISOLAMENTO IMEDIATO da rede</div>
+            <div class="subtitle">Desconectar fisicamente todos os cabos de rede ou derrubar o switch. AGIR AGORA.</div>
+            <div class="resp">Guilherme + Yan · até 5 min</div>
+          </div>
+        </div>
+        <div class="step" onclick="toggleStep(this)">
+          <input type="checkbox"><div class="step-num">2</div>
+          <div class="step-content">
+            <div class="title">Desligar a VPN entre as unidades</div>
+            <div class="subtitle">Evitar propagação do ransomware para a Unidade Bairro</div>
+            <div class="resp">Guilherme Maciel · até 5 min</div>
+          </div>
+        </div>
+        <div class="step" onclick="toggleStep(this)">
+          <input type="checkbox"><div class="step-num">3</div>
+          <div class="step-content">
+            <div class="title">Identificar o ponto de entrada e o alcance</div>
+            <div class="subtitle">E-mail de phishing, acesso remoto comprometido, pen-drive — quais máquinas foram afetadas?</div>
+            <div class="resp">Guilherme Maciel · até 30 min</div>
+          </div>
+        </div>
+        <div class="step" onclick="toggleStep(this)">
+          <input type="checkbox"><div class="step-num">4</div>
+          <div class="step-content">
+            <div class="title">Comunicar à direção e verificar vazamento de dados</div>
+            <div class="subtitle">Se dados de pacientes foram comprometidos → Notificar ANPD em até 72h (LGPD, art. 48)</div>
+            <div class="resp">Filipe Santos · até 30 min</div>
+          </div>
+        </div>
+        <div class="step" onclick="toggleStep(this)">
+          <input type="checkbox"><div class="step-num">5</div>
+          <div class="step-content">
+            <div class="title">Formatar e reinstalar o SO em todas as máquinas infectadas</div>
+            <div class="subtitle">Não tentar remover o ransomware manualmente — reinstalação total é obrigatória</div>
+            <div class="resp">Guilherme + Yan · 3–4h</div>
+          </div>
+        </div>
+        <div class="step" onclick="toggleStep(this)">
+          <input type="checkbox"><div class="step-num">6</div>
+          <div class="step-content">
+            <div class="title">Identificar o backup limpo mais recente</div>
+            <div class="subtitle">Localizar snapshot anterior à infecção no Amazon S3 (verificar timestamps)</div>
+            <div class="resp">Guilherme Maciel · até 30 min</div>
+          </div>
+        </div>
+        <div class="step" onclick="toggleStep(this)">
+          <input type="checkbox"><div class="step-num">7</div>
+          <div class="step-content">
+            <div class="title">Restaurar todos os sistemas a partir do S3</div>
+            <div class="subtitle">⚠️ Verificar antes se o NAS local não foi criptografado junto</div>
+            <div class="resp">Guilherme + Yan · 2–3h</div>
+          </div>
+        </div>
+        <div class="step" onclick="toggleStep(this)">
+          <input type="checkbox"><div class="step-num">8</div>
+          <div class="step-content">
+            <div class="title">Verificar integridade e realizar testes funcionais</div>
+            <div class="subtitle">Checksum SHA-256 + abertura de prontuários + testes de acesso</div>
+            <div class="resp">Guilherme Maciel · 1h</div>
+          </div>
+        </div>
+        <div class="step" onclick="toggleStep(this)">
+          <input type="checkbox"><div class="step-num">9</div>
+          <div class="step-content">
+            <div class="title">Reconectar máquinas somente após confirmação de limpeza</div>
+            <div class="subtitle">Cada máquina deve ter reinstalação confirmada antes de voltar à rede</div>
+            <div class="resp">Guilherme Maciel · até 30 min</div>
+          </div>
+        </div>
+        <div class="step" onclick="toggleStep(this)">
+          <input type="checkbox"><div class="step-num">10</div>
+          <div class="step-content">
+            <div class="title">Alterar todas as senhas de acesso</div>
+            <div class="subtitle">Servidores, PEP, VPN, Amazon S3, e-mail, sistemas financeiros</div>
+            <div class="resp">Yan · 1h</div>
+          </div>
+        </div>
+        <div class="step" onclick="toggleStep(this)">
+          <input type="checkbox"><div class="step-num">11</div>
+          <div class="step-content">
+            <div class="title">Registrar o incidente em detalhe</div>
+            <div class="subtitle">Preencher Registro de Incidente (Seção 5.1) + comunicar retorno à operação</div>
+            <div class="resp">Filipe Santos · 1h</div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /card-2 -->
+
+    <!-- ── CENÁRIO 3: Incêndio ── -->
+    <div class="scenario-card orange" id="card-3">
+      <div class="scenario-header" onclick="toggleCard(3)">
+        <div class="icon">🔥</div>
+        <div class="info">
+          <div class="label">Cenário 3 · Risco P3</div>
+          <div class="name">Incêndio / Desastre</div>
+          <div class="tags">
+            <span class="tag">RTO: 48–72h</span>
+            <span class="tag">RPO: 7d</span>
+            <span class="tag">Fonte: HD off-site</span>
+          </div>
+        </div>
+        <div class="chevron">▼</div>
+      </div>
+
+      <div class="activate-row">
+        <button class="activate-btn" id="activate-3" onclick="activateScenario(3)">
+          ▶ Ativar Cenário 3
+        </button>
+        <button class="reset-btn" onclick="resetScenario(3)">↺ Resetar</button>
+      </div>
+
+      <div class="timer-row" id="timer-row-3">
+        <div class="timer-label">Tempo decorrido:</div>
+        <div class="timer-display" id="timer-3">00:00</div>
+        <div class="timer-rto">Meta RTO: 48h (parcial)</div>
+      </div>
+
+      <div class="progress-row" id="progress-row-3">
+        <div class="progress-meta">
+          <span id="progress-label-3">0 de 11 etapas concluídas</span>
+          <span id="progress-pct-3">0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill-3" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div class="checklist-body" id="checklist-3">
+        <div class="alert-step" style="background:#fff7ed; border-color:#ea580c; color:#7c2d12;">🚨 PRIORIDADE MÁXIMA: Segurança das pessoas. Nenhum equipamento justifica risco à vida. Ligue 193.</div>
+        <div class="step" onclick="toggleStep(this)">
+          <input type="checkbox"><div class="step-num">1</div>
+          <div class="step-content">
+            <div class="title">Garantir evacuação e acionar Bombeiros</div>
+            <div class="subtitle">Evacuação completa de todos os colaboradores. Corpo de Bombeiros: 193</div>
+            <div class="resp">Todos · Imediato</div>
+          </div>
+        </div>
+        <div class="step" onclick="toggleStep(this)">
+          <input type="checkbox"><div class="step-num">2</div>
+          <div class="step-content">
+            <div class="title">Comunicar à direção e às equipes de ambas as unidades</div>
+            <div class="subtitle">Informar a situação, a unidade afetada e que o plano de contingência foi acionado</div>
+            <div class="resp">Filipe Santos · até 30 min</div>
+          </div>
+        </div>
+        <div class="step" onclick="toggleStep(this)">
+          <input type="checkbox"><div class="step-num">3</div>
+          <div class="step-content">
+            <div class="title">Redirecionar atendimentos</div>
+            <div class="subtitle">Se Unidade Bairro: encaminhar para Unidade Central. Se Unidade Central: modo emergencial na Unidade Bairro</div>
+            <div class="resp">Filipe Santos · até 2h</div>
+          </div>
+        </div>
+        <div class="step" onclick="toggleStep(this)">
+          <input type="checkbox"><div class="step-num">4</div>
+          <div class="step-content">
+            <div class="title">Acionar HD externo off-site da unidade afetada</div>
+            <div class="subtitle">Local de guarda: mínimo 30 km. Ver contrato e endereço no binder físico</div>
+            <div class="resp">Guilherme Maciel · até 2h</div>
+          </div>
+        </div>
+        <div class="step" onclick="toggleStep(this)">
+          <input type="checkbox"><div class="step-num">5</div>
+          <div class="step-content">
+            <div class="title">Adquirir hardware de substituição</div>
+            <div class="subtitle">Servidor temporário + NAS de reposição — contato fornecedores preferencial no binder</div>
+            <div class="resp">Filipe Santos · 24–48h</div>
+          </div>
+        </div>
+        <div class="step" onclick="toggleStep(this)">
+          <input type="checkbox"><div class="step-num">6</div>
+          <div class="step-content">
+            <div class="title">Instalar SO e aplicações nos novos servidores</div>
+            <div class="subtitle">Sistema operacional + PEP + banco de dados — imagens de instalação no HD off-site</div>
+            <div class="resp">Guilherme + Yan · 4–8h</div>
+          </div>
+        </div>
+        <div class="step" onclick="toggleStep(this)">
+          <input type="checkbox"><div class="step-num">7</div>
+          <div class="step-content">
+            <div class="title">Restaurar dados a partir do HD off-site criptografado</div>
+            <div class="subtitle">Decriptar com chave AES-256 — chave armazenada separadamente (não no HD)</div>
+            <div class="resp">Guilherme Maciel · 4–8h</div>
+          </div>
+        </div>
+        <div class="step" onclick="toggleStep(this)">
+          <input type="checkbox"><div class="step-num">8</div>
+          <div class="step-content">
+            <div class="title">Validar integridade e realizar testes funcionais</div>
+            <div class="subtitle">Checksum + abertura de prontuários + testes de acesso ao PEP</div>
+            <div class="resp">Guilherme Maciel · 2h</div>
+          </div>
+        </div>
+        <div class="step" onclick="toggleStep(this)">
+          <input type="checkbox"><div class="step-num">9</div>
+          <div class="step-content">
+            <div class="title">Reintegrar unidade recuperada à VPN</div>
+            <div class="subtitle">Reconexão OpenVPN e validação da comunicação entre as unidades</div>
+            <div class="resp">Guilherme Maciel · 1h</div>
+          </div>
+        </div>
+        <div class="step" onclick="toggleStep(this)">
+          <input type="checkbox"><div class="step-num">10</div>
+          <div class="step-content">
+            <div class="title">Comunicar retorno à operação normal</div>
+            <div class="subtitle">Notificar equipes, pacientes afetados e parceiros</div>
+            <div class="resp">Filipe Santos · após retomada</div>
+          </div>
+        </div>
+        <div class="step" onclick="toggleStep(this)">
+          <input type="checkbox"><div class="step-num">11</div>
+          <div class="step-content">
+            <div class="title">Registrar incidente, acionar seguros e obter laudo técnico</div>
+            <div class="subtitle">Registro de Incidente + Boletim de Ocorrência + laudo para seguradora</div>
+            <div class="resp">Filipe Santos · após estabilização</div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /card-3 -->
+
+  </div><!-- /scenarios -->
+
+  <!-- ── BOTTOM GRID ── -->
+  <div class="bottom-grid">
+
+    <!-- Contacts -->
+    <div class="panel">
+      <div class="panel-header">📞 Contatos de Emergência</div>
+      <div class="panel-body">
+        <div class="contacts">
+          <div class="contact-card">
+            <div class="contact-avatar">GM</div>
+            <div class="contact-info">
+              <div class="name">Guilherme Maciel</div>
+              <div class="role">Responsável Técnico — acionar primeiro em incidentes</div>
+            </div>
+            <div class="contact-phone">(14) 9xxxx-xxxx</div>
+          </div>
+          <div class="contact-card">
+            <div class="contact-avatar">FS</div>
+            <div class="contact-info">
+              <div class="name">Filipe Santos</div>
+              <div class="role">Líder do Sprint — coordenação e comunicação</div>
+            </div>
+            <div class="contact-phone">(14) 9xxxx-xxxx</div>
+          </div>
+          <div class="contact-card">
+            <div class="contact-avatar">YN</div>
+            <div class="contact-info">
+              <div class="name">Yan</div>
+              <div class="role">Apoio Técnico</div>
+            </div>
+            <div class="contact-phone">(14) 9xxxx-xxxx</div>
+          </div>
+          <div class="contact-card">
+            <div class="contact-avatar">BV</div>
+            <div class="contact-info">
+              <div class="name">Bruno Vila</div>
+              <div class="role">Documentação e Registros</div>
+            </div>
+            <div class="contact-phone">(14) 9xxxx-xxxx</div>
+          </div>
+          <div class="contact-card">
+            <div class="contact-avatar">RF</div>
+            <div class="contact-info">
+              <div class="name">Rafael</div>
+              <div class="role">Evidências e Registros</div>
+            </div>
+            <div class="contact-phone">(14) 9xxxx-xxxx</div>
+          </div>
+          <div class="contact-card">
+            <div class="contact-avatar">DV</div>
+            <div class="contact-info">
+              <div class="name">Direção VitaClínica</div>
+              <div class="role">Notificar em todo incidente P1 ou P2</div>
+            </div>
+            <div class="contact-phone">(14) 3xxx-xxxx</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RPO/RTO + Emergency -->
+    <div style="display:flex; flex-direction:column; gap:16px;">
+
+      <div class="panel">
+        <div class="panel-header">⏱ Tabela RPO / RTO por Ativo</div>
+        <div class="panel-body" style="padding:0;">
+          <table class="rto-table">
+            <thead>
+              <tr>
+                <th>Ativo</th>
+                <th>Criticidade</th>
+                <th>RPO</th>
+                <th>RTO</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>A01 — Servidor PEP</td>
+                <td><span class="badge critical">Crítica</span></td>
+                <td class="rto-value">1 hora</td>
+                <td class="rto-value">2 horas</td>
+              </tr>
+              <tr>
+                <td>A02 — Banco de Dados</td>
+                <td><span class="badge critical">Crítica</span></td>
+                <td class="rto-value">1 hora</td>
+                <td class="rto-value">2 horas</td>
+              </tr>
+              <tr>
+                <td>A05 — Laudos / Imagens</td>
+                <td><span class="badge critical">Crítica</span></td>
+                <td class="rto-value">4 horas</td>
+                <td class="rto-value">4 horas</td>
+              </tr>
+              <tr>
+                <td>A03 — Agendamento</td>
+                <td><span class="badge high">Alta</span></td>
+                <td class="rto-value">4 horas</td>
+                <td class="rto-value">4 horas</td>
+              </tr>
+              <tr>
+                <td>A04 — Financeiro</td>
+                <td><span class="badge high">Alta</span></td>
+                <td class="rto-value">8 horas</td>
+                <td class="rto-value">8 horas</td>
+              </tr>
+              <tr>
+                <td>A06 — VPN</td>
+                <td><span class="badge high">Alta</span></td>
+                <td class="rto-value">N/A</td>
+                <td class="rto-value">2 horas</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">🚨 Números de Emergência</div>
+        <div class="panel-body">
+          <div class="emergency-list">
+            <div class="emergency-item red">
+              <div>
+                <div class="e-name">Corpo de Bombeiros</div>
+                <div style="font-size:10px;color:#991b1b;">Incêndio / Resgate</div>
+              </div>
+              <div class="e-number" style="color:#dc2626;">193</div>
+            </div>
+            <div class="emergency-item red">
+              <div>
+                <div class="e-name">SAMU / Emergência Médica</div>
+                <div style="font-size:10px;color:#991b1b;">Ambulância</div>
+              </div>
+              <div class="e-number" style="color:#dc2626;">192</div>
+            </div>
+            <div class="emergency-item blue">
+              <div>
+                <div class="e-name">ANPD — Notificação LGPD</div>
+                <div style="font-size:10px;color:#1e40af;">Art. 48 — Prazo: 72 horas</div>
+              </div>
+              <div class="e-number" style="color:#2563eb;font-size:12px;">gov.br/anpd</div>
+            </div>
+            <div class="emergency-item orange">
+              <div>
+                <div class="e-name">Suporte AWS</div>
+                <div style="font-size:10px;color:#9a3412;">Amazon S3 — Nuvem</div>
+              </div>
+              <div class="e-number" style="color:#ea580c;font-size:12px;">0800 xxx xxxx</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /right col -->
+  </div><!-- /bottom-grid -->
+
+</main>
+
+<!-- ════════════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════════ -->
+<footer>
+  <strong>VitaClínica — BCP/DRP v1.0</strong> &nbsp;|&nbsp;
+  Projeto Integrado II · TADS Anhanguera · Semestre 1/2026 · Professor Roberto Maia &nbsp;|&nbsp;
+  Referência: ABNT NBR ISO/IEC 27001:2013 · NIST SP 800-34 · LGPD Lei nº 13.709/2018
+</footer>
+
+<!-- ════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════ -->
+<script>
+  const timers = { 1: null, 2: null, 3: null };
+  const starts  = { 1: null, 2: null, 3: null };
+  const rtoSecs = { 1: 7200, 2: 28800, 3: 172800 };
+  const totalSteps = { 1: 8, 2: 11, 3: 11 };
+
+  /* ── MODE TOGGLE ── */
+  function setMode(mode) {
+    const banner = document.getElementById('incident-banner');
+    const btnNormal   = document.getElementById('toggle-normal');
+    const btnIncident = document.getElementById('toggle-incident');
+    if (mode === 'incident') {
+      banner.classList.add('active');
+      btnNormal.classList.remove('active');
+      btnIncident.classList.add('active');
+      document.body.style.borderTop = '4px solid #dc2626';
+    } else {
+      banner.classList.remove('active');
+      btnNormal.classList.add('active');
+      btnIncident.classList.remove('active');
+      document.body.style.borderTop = '';
+    }
+  }
+
+  /* ── TOGGLE CARD (expand/collapse) ── */
+  function toggleCard(n) {
+    const card      = document.getElementById('card-' + n);
+    const checklist = document.getElementById('checklist-' + n);
+    const progRow   = document.getElementById('progress-row-' + n);
+    const isOpen    = card.classList.toggle('open');
+    checklist.classList.toggle('visible', isOpen);
+    progRow.classList.toggle('visible', isOpen);
+  }
+
+  /* ── ACTIVATE SCENARIO ── */
+  function activateScenario(n) {
+    const card    = document.getElementById('card-' + n);
+    const btn     = document.getElementById('activate-' + n);
+    const timerRow = document.getElementById('timer-row-' + n);
+    const checklist = document.getElementById('checklist-' + n);
+    const progRow   = document.getElementById('progress-row-' + n);
+
+    // Open card
+    card.classList.add('open');
+    checklist.classList.add('visible');
+    progRow.classList.add('visible');
+    timerRow.classList.add('visible');
+
+    // Update button
+    btn.textContent = '⏳ Cenário ' + n + ' em andamento…';
+    btn.classList.add('activated');
+    btn.disabled = true;
+
+    // Switch to incident mode
+    setMode('incident');
+
+    // Start timer
+    if (timers[n]) clearInterval(timers[n]);
+    starts[n] = Date.now();
+    timers[n] = setInterval(() => updateTimer(n), 1000);
+  }
+
+  /* ── RESET SCENARIO ── */
+  function resetScenario(n) {
+    clearInterval(timers[n]);
+    timers[n] = null;
+    starts[n] = null;
+
+    const timerEl = document.getElementById('timer-' + n);
+    timerEl.textContent = '00:00';
+    timerEl.className = 'timer-display';
+
+    document.getElementById('timer-row-' + n).classList.remove('visible');
+    updateProgress(n);
+
+    const btn = document.getElementById('activate-' + n);
+    btn.textContent = '▶ Ativar Cenário ' + n;
+    btn.classList.remove('activated');
+    btn.disabled = false;
+
+    // Uncheck all steps
+    const card = document.getElementById('card-' + n);
+    card.querySelectorAll('.step').forEach(s => {
+      s.classList.remove('done');
+      s.querySelector('input[type=checkbox]').checked = false;
+    });
+    updateProgress(n);
+  }
+
+  /* ── TIMER ── */
+  function updateTimer(n) {
+    const elapsed = Math.floor((Date.now() - starts[n]) / 1000);
+    const h = Math.floor(elapsed / 3600);
+    const m = Math.floor((elapsed % 3600) / 60);
+    const s = elapsed % 60;
+    const display = (h > 0 ? String(h).padStart(2,'0') + ':' : '') +
+                    String(m).padStart(2,'0') + ':' +
+                    String(s).padStart(2,'0');
+
+    const el = document.getElementById('timer-' + n);
+    el.textContent = display;
+
+    const pct = elapsed / rtoSecs[n];
+    el.className = 'timer-display' +
+      (pct >= 1 ? ' danger' : pct >= 0.75 ? ' warning' : '');
+  }
+
+  /* ── STEP TOGGLE ── */
+  function toggleStep(stepEl) {
+    const cb = stepEl.querySelector('input[type=checkbox]');
+    cb.checked = !cb.checked;
+    stepEl.classList.toggle('done', cb.checked);
+
+    // Find scenario number
+    const checklist = stepEl.closest('.checklist-body');
+    const n = parseInt(checklist.id.replace('checklist-', ''));
+    updateProgress(n);
+
+    // Auto-start timer on first step checked
+    if (cb.checked && !timers[n]) {
+      activateScenario(n);
+    }
+  }
+
+  /* ── PROGRESS ── */
+  function updateProgress(n) {
+    const card  = document.getElementById('card-' + n);
+    const steps = card.querySelectorAll('.step');
+    const done  = card.querySelectorAll('.step.done').length;
+    const total = steps.length;
+    const pct   = total > 0 ? Math.round((done / total) * 100) : 0;
+
+    document.getElementById('progress-fill-' + n).style.width = pct + '%';
+    document.getElementById('progress-label-' + n).textContent =
+      done + ' de ' + total + ' etapas concluídas';
+    document.getElementById('progress-pct-' + n).textContent = pct + '%';
+  }
+</script>
+</body>
+</html>
