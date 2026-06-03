@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VitaClínica — BCP/DRP | Projeto Integrado II</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue-dark: #1e3a5f;
+      --blue:      #2563eb;
+      --blue-mid:  #1e40af;
+      --slate:     #1e293b;
+      --red:       #b91c1c;
+      --orange:    #c2410c;
+      --green:     #166534;
+      --text:      #f1f5f9;
+      --muted:     #94a3b8;
+      --card:      rgba(255,255,255,0.07);
+      --border:    rgba(255,255,255,0.10);
+    }
+
+    html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #0f172a; color: var(--text); }
+
+    /* ─── SLIDESHOW ─── */
+    #deck { width: 100vw; height: 100vh; position: relative; }
+
+    .slide {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      padding: 44px 70px;
+      opacity: 0; transition: opacity 0.3s ease;
+      pointer-events: none; overflow: hidden;
+    }
+    .slide.active { opacity: 1; pointer-events: all; }
+
+    .bg-cover   { background: linear-gradient(145deg, #0c1e3a 0%, #1e293b 100%); }
+    .bg-default { background: #1e293b; }
+    .bg-blue    { background: linear-gradient(145deg, #0f2a4a 0%, #1e293b 100%); }
+    .bg-red     { background: linear-gradient(145deg, #3b0a0a 0%, #1e293b 100%); }
+    .bg-orange  { background: linear-gradient(145deg, #3b1206 0%, #1e293b 100%); }
+    .bg-green   { background: linear-gradient(145deg, #052e16 0%, #1e293b 100%); }
+    .bg-dark    { background: #0f172a; }
+
+    /* ─── NAV ─── */
+    .nav-btn {
+      position: fixed; top: 50%; transform: translateY(-50%);
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.6); width: 42px; height: 42px;
+      border-radius: 50%; cursor: pointer; font-size: 17px;
+      transition: all .2s; z-index: 200;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,0.16); color: #fff; }
+    #btn-prev { left: 14px; }
+    #btn-next { right: 14px; }
+
+    /* ─── PROGRESS ─── */
+    #bar { position: fixed; bottom: 0; left: 0; height: 3px; background: var(--blue); transition: width .3s; z-index: 200; }
+    #ctr { position: fixed; bottom: 10px; right: 16px; font-size: 11px; color: rgba(255,255,255,0.3); z-index: 200; letter-spacing: 1px; }
+
+    /* ─── TYPE ─── */
+    .tag {
+      font-size: 10px; font-weight: 700; letter-spacing: 3px;
+      text-transform: uppercase; color: #475569;
+      margin-bottom: 10px; display: block;
+    }
+    .title { font-size: 36px; font-weight: 800; line-height: 1.15; margin-bottom: 6px; letter-spacing: -.5px; }
+    .sub   { font-size: 16px; color: var(--muted); margin-bottom: 28px; line-height: 1.5; }
+    h2 { font-size: 28px; font-weight: 700; margin-bottom: 18px; line-height: 1.2; }
+    h3 { font-size: 16px; font-weight: 600; color: #93c5fd; margin-bottom: 7px; }
+    p  { font-size: 14px; color: #cbd5e1; line-height: 1.65; }
+    code { font-family: 'Cascadia Code','Consolas',monospace; font-size: 12px; color: #60a5fa; background: rgba(37,99,235,0.15); padding: 1px 5px; border-radius: 3px; }
+
+    /* ─── LAYOUT ─── */
+    .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    .g4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; }
+    .fill { flex: 1; }
+    .center { display: flex; align-items: center; justify-content: center; }
+    .col { display: flex; flex-direction: column; }
+
+    /* ─── CARDS ─── */
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+    .cl-blue   { border-left: 3px solid #3b82f6; }
+    .cl-red    { border-left: 3px solid #ef4444; }
+    .cl-orange { border-left: 3px solid #f97316; }
+    .cl-green  { border-left: 3px solid #22c55e; }
+    .cl-gray   { border-left: 3px solid #475569; }
+
+    /* ─── BADGES ─── */
+    .badge { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .bv-red    { background: #7f1d1d; color: #fca5a5; }
+    .bv-yellow { background: #713f12; color: #fef08a; }
+    .bv-green  { background: #14532d; color: #86efac; }
+    .bv-blue   { background: #1e3a8a; color: #93c5fd; }
+    .bv-gray   { background: #334155; color: #cbd5e1; }
+
+    /* ─── STAT BOXES ─── */
+    .stat { background: var(--card); border-radius: 10px; padding: 18px 14px; text-align: center; }
+    .stat-n { font-size: 40px; font-weight: 900; line-height: 1; }
+    .stat-l { font-size: 11px; color: var(--muted); margin-top: 5px; line-height: 1.4; }
+
+    /* ─── TABLE ─── */
+    table { width: 100%; border-collapse: collapse; }
+    th { background: rgba(255,255,255,0.08); padding: 8px 12px; text-align: left; font-size: 12px; color: #93c5fd; font-weight: 600; letter-spacing: .4px; }
+    td { padding: 6px 12px; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 13px; color: #cbd5e1; }
+    tr:last-child td { border-bottom: none; }
+    .tg { color: #4ade80; font-weight: 700; }
+    .ty { color: #fbbf24; font-weight: 700; }
+    .tr { color: #f87171; font-weight: 700; }
+
+    /* ─── BULLETS ─── */
+    ul.bl { list-style: none; }
+    ul.bl li { padding: 4px 0; font-size: 14px; color: #cbd5e1; display: flex; align-items: flex-start; gap: 9px; }
+    ul.bl li::before { content: '▸'; color: var(--blue); font-size: 10px; margin-top: 4px; flex-shrink: 0; }
+
+    /* ─── KPI ─── */
+    .kpi-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .kpi { background: var(--card); border-radius: 8px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; }
+    .kpi-label { font-size: 12px; color: var(--muted); }
+    .kpi-sub   { font-size: 10px; color: #475569; }
+    .kpi-val   { font-size: 14px; font-weight: 700; }
+
+    /* ─── FLOW ─── */
+    .flow-row { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+    .flow-dot { width: 11px; height: 11px; border-radius: 50%; background: var(--blue); flex-shrink: 0; }
+    .flow-line { width: 2px; height: 14px; background: #334155; margin-left: 4.5px; }
+
+    /* ─── COVER ─── */
+    .logo-box {
+      width: 68px; height: 68px; background: var(--blue); border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 30px; font-weight: 900; color: #fff; margin-bottom: 24px;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 20px; }
+    .chip { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.11); border-radius: 20px; padding: 4px 13px; font-size: 13px; color: #94a3b8; }
+
+    /* ─── REFS ─── */
+    .ref { padding: 8px 12px; border-left: 2px solid #334155; margin-bottom: 6px; font-size: 12px; color: #94a3b8; line-height: 1.5; }
+    .ref strong { color: #cbd5e1; }
+
+    /* ─── PRINT ─── */
+    @media print {
+      html,body { overflow: visible; background: white; color: #1e293b; }
+      #deck { height: auto; overflow: visible; }
+      .slide { position: relative; opacity: 1 !important; pointer-events: all; page-break-after: always; height: 100vh; background: white !important; color: #1e293b !important; }
+      .nav-btn,#bar,#ctr { display: none; }
+      .tag,h2,h3,.title { color: #1e3a5f !important; }
+      .sub,p,td,.kpi-label { color: #475569 !important; }
+      th { background: #e2e8f0 !important; color: #1e293b !important; }
+      .card { background: #f8fafc !important; border: 1px solid #e2e8f0 !important; }
+      .stat,.kpi { background: #f1f5f9 !important; }
+      .chip { background: #f1f5f9 !important; border-color: #e2e8f0 !important; color: #475569 !important; }
+    }
+  </style>
+</head>
+<body>
+<div id="deck">
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 1 — CAPA
+  ══════════════════════════════════════════════ -->
+  <div class="slide bg-cover active">
+    <div class="fill center">
+      <div style="max-width:780px; width:100%;">
+        <div class="logo-box">VC</div>
+        <span class="tag">Projeto Integrado II — TADS Anhanguera · Semestre 1/2026</span>
+        <div class="title">Plano de Backup e<br>Continuidade de Negócios</div>
+        <div style="font-size:22px; color:#93c5fd; font-weight:600; margin-bottom:10px;">BCP / DRP — VitaClínica</div>
+        <p style="color:#64748b; font-size:14px;">Clínica médica fictícia de médio porte · Duas unidades · Interior de São Paulo</p>
+        <div class="chips">
+          <div class="chip">Filipe Santos — Líder</div>
+          <div class="chip">Guilherme Maciel — Técnico</div>
+          <div class="chip">Bruno Vila — Documentação</div>
+          <div class="chip">Rafael — Evidências</div>
+          <div class="chip">Yan — Apoio Técnico</div>
+        </div>
+        <div style="margin-top:18px; font-size:12px; color:#475569;">Professor Roberto Maia · Junho de 2026</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 2 — O PROBLEMA
+  ══════════════════════════════════════════════ -->
+  <div class="slide bg-default">
+    <span class="tag">Contexto</span>
+    <h2>Por que a VitaClínica precisa de um BCP/DRP?</h2>
+    <div class="g2 fill" style="align-items:start;">
+      <div class="col" style="gap:12px;">
+        <div class="card cl-red">
+          <h3 style="color:#fca5a5;">Situação antes do projeto</h3>
+          <ul class="bl">
+            <li>Sem nenhum backup configurado</li>
+            <li>Sem procedimento de resposta a incidentes</li>
+            <li>Sem responsáveis definidos para emergências</li>
+            <li>200 pacientes/dia — qualquer parada causa impacto imediato</li>
+            <li>Dados de saúde = dados sensíveis sob a LGPD</li>
+          </ul>
+        </div>
+        <div class="card cl-blue">
+          <h3>O que este projeto entrega</h3>
+          <ul class="bl">
+            <li>Backup 3-2-1 com criptografia AES-256</li>
+            <li>Procedimentos detalhados para 3 cenários de desastre</li>
+            <li>RPO e RTO definidos para 6 ativos críticos</li>
+            <li>Conformidade com LGPD, ABNT e NIST</li>
+          </ul>
+        </div>
+      </div>
+      <div class="g2" style="gap:12px; align-content:start;">
+        <div class="stat"><div class="stat-n" style="color:#60a5fa;">200</div><div class="stat-l">pacientes atendidos por dia nas duas unidades</div></div>
+        <div class="stat"><div class="stat-n" style="color:#f87171;">3</div><div class="stat-l">cenários de desastre cobertos com procedimento completo</div></div>
+        <div class="stat"><div class="stat-n" style="color:#fb923c;">72h</div><div class="stat-l">prazo máximo para notificar a ANPD (LGPD art. 48)</div></div>
+        <div class="stat"><div class="stat-n" style="color:#4ade80;">6</div><div class="stat-l">ativos críticos com RPO e RTO definidos</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 3 — EMPRESA
+  ══════════════════════════════════════════════ -->
+  <div class="slide bg-blue">
+    <span class="tag">Empresa Fictícia</span>
+    <h2>VitaClínica — Clínica Médica de Médio Porte</h2>
+    <div class="g2 fill" style="align-items:start;">
+      <div class="col" style="gap:12px;">
+        <div class="card cl-blue">
+          <h3>Unidade Central (sede)</h3>
+          <p>Servidor principal, sala de servidores, NAS local. Atendimento: consultas, exames e laudos.</p>
+        </div>
+        <div class="card cl-gray">
+          <h3>Unidade Bairro</h3>
+          <p>Conectada via VPN OpenVPN. Dependente do servidor central para PEP e banco de dados de pacientes.</p>
+        </div>
+        <div class="card" style="background:rgba(37,99,235,0.1); border-color:rgba(37,99,235,0.3);">
+          <h3>Ativos de TI Críticos</h3>
+          <div style="display:flex; flex-wrap:wrap; gap:7px; margin-top:8px;">
+            <span class="badge bv-blue">A01 PEP</span><span class="badge bv-blue">A02 BD Pacientes</span>
+            <span class="badge bv-gray">A03 Agendamento</span><span class="badge bv-gray">A04 Financeiro</span>
+            <span class="badge bv-gray">A05 Laudos DICOM</span><span class="badge bv-blue">A06 VPN</span>
+          </div>
+        </div>
+      </div>
+      <div class="col" style="gap:12px;">
+        <div class="card cl-red" style="background:rgba(185,28,28,0.12);">
+          <h3 style="color:#fca5a5;">Obrigações Legais</h3>
+          <ul class="bl">
+            <li><strong style="color:#f1f5f9;">LGPD art. 46</strong> — segurança de dados sensíveis de saúde</li>
+            <li><strong style="color:#f1f5f9;">LGPD art. 48</strong> — notificação ANPD em até 72h</li>
+            <li><strong style="color:#f1f5f9;">CFM Res. 2.299/2021</strong> — prontuário guardado por 20 anos</li>
+            <li><strong style="color:#f1f5f9;">ABNT NBR ISO/IEC 27001</strong> — controles de continuidade</li>
+          </ul>
+        </div>
+        <div class="card cl-gray">
+          <h3>Ferramentas Utilizadas (conceitual)</h3>
+          <ul class="bl">
+            <li>Veeam Backup — gestão de backups</li>
+            <li>Zabbix — monitoramento e alertas</li>
+            <li>OpenVPN — VPN entre unidades</li>
+            <li>Amazon S3 sa-east-1 — nuvem</li>
+            <li>rsync + openssl — scripts de backup</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 4 — ATIVOS CRÍTICOS
+  ══════════════════════════════════════════════ -->
+  <div class="slide bg-default">
+    <span class="tag">Sprint 2 — Análise de Requisitos</span>
+    <h2>Ativos Críticos — RPO e RTO Definidos</h2>
+    <div class="fill col" style="justify-content:center; gap:16px;">
+      <table>
+        <thead>
+          <tr><th>Ativo</th><th>Descrição</th><th>Criticidade</th><th>RTO</th><th>RPO</th><th>Prioridade</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>A01 — PEP</strong></td><td>Prontuário Eletrônico</td><td><span class="badge bv-red">CRÍTICO</span></td><td class="ty">2 h</td><td class="ty">1 h</td><td>1ª — imediata</td></tr>
+          <tr><td><strong>A02 — BD Pacientes</strong></td><td>Banco de Dados</td><td><span class="badge bv-red">CRÍTICO</span></td><td class="ty">2 h</td><td class="ty">1 h</td><td>1ª — imediata</td></tr>
+          <tr><td><strong>A03 — Agendamento</strong></td><td>Sistema de Agendamento</td><td><span class="badge bv-yellow">ALTO</span></td><td>4 h</td><td>4 h</td><td>2ª</td></tr>
+          <tr><td><strong>A04 — Financeiro</strong></td><td>Sistema Financeiro</td><td><span class="badge bv-gray">MÉDIO</span></td><td>8 h</td><td>8 h</td><td>3ª</td></tr>
+          <tr><td><strong>A05 — Laudos</strong></td><td>Imagens DICOM</td><td><span class="badge bv-yellow">ALTO</span></td><td>4 h</td><td>4 h</td><td>2ª</td></tr>
+          <tr><td><strong>A06 — VPN</strong></td><td>Interligação das Unidades</td><td><span class="badge bv-red">CRÍTICO</span></td><td class="ty">2 h</td><td>N/A</td><td>1ª — imediata</td></tr>
+        </tbody>
+      </table>
+      <div class="g2" style="gap:12px;">
+        <div class="card cl-blue">
+          <strong style="font-size:13px; color:#93c5fd;">RPO — Recovery Point Objective</strong>
+          <p style="margin-top:5px; font-size:13px;">Máximo de dados que podem ser perdidos. Define a frequência do backup incremental.</p>
+        </div>
+        <div class="card cl-orange">
+          <strong style="font-size:13px; color:#fdba74;">RTO — Recovery Time Objective</strong>
+          <p style="margin-top:5px; font-size:13px;">Tempo máximo tolerado para restaurar o sistema. Define a urgência da resposta ao incidente.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 5 — BACKUP 3-2-1
+  ══════════════════════════════════════════════ -->
+  <div class="slide bg-green">
+    <span class="tag">Sprint 3 — Estratégia de Backup</span>
+    <h2>Regra 3-2-1: Três Cópias, Dois Meios, Um Off-site</h2>
+    <div class="g3" style="margin-bottom:16px;">
+      <div class="card cl-blue">
+        <div style="font-size:30px; font-weight:900; color:#60a5fa; margin-bottom:7px;">C1</div>
+        <h3>NAS Local</h3>
+        <p style="font-size:13px;">Synology DS223 em cada unidade<br>Incremental a cada hora<br>Full diário às 22h00</p>
+        <div style="margin-top:9px;"><span class="badge bv-blue">On-site</span></div>
+      </div>
+      <div class="card cl-blue">
+        <div style="font-size:30px; font-weight:900; color:#60a5fa; margin-bottom:7px;">C2</div>
+        <h3>Amazon S3</h3>
+        <p style="font-size:13px;">Região sa-east-1 (São Paulo)<br>Glacier após 90 dias<br>AES-256-CBC</p>
+        <div style="margin-top:9px;"><span class="badge bv-blue">Nuvem</span></div>
+      </div>
+      <div class="card cl-orange">
+        <div style="font-size:30px; font-weight:900; color:#fb923c; margin-bottom:7px;">C3</div>
+        <h3>HD Externo Off-site</h3>
+        <p style="font-size:13px;">Mínimo 30 km da unidade<br>Rotação semanal manual<br>Local de guarda contratado</p>
+        <div style="margin-top:9px;"><span class="badge bv-yellow">Off-site</span></div>
+      </div>
+    </div>
+    <div class="g2" style="gap:12px;">
+      <div class="card">
+        <h3>Proteções de Integridade</h3>
+        <ul class="bl">
+          <li>Criptografia <code>AES-256-CBC</code> — chave em local separado dos backups</li>
+          <li>Checksum <code>SHA-256</code> gerado automaticamente a cada backup</li>
+          <li>Teste mensal automatizado: <code>teste_restauracao.sh</code> (cron 1º dia/mês)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Política de Retenção</h3>
+        <ul class="bl">
+          <li>Dados de saúde (PEP, BD, Laudos): <strong style="color:#f1f5f9;">90 dias</strong></li>
+          <li>Financeiro: <strong style="color:#f1f5f9;">365 dias</strong></li>
+          <li>Agendamento: <strong style="color:#f1f5f9;">60 dias</strong></li>
+          <li>Arquivo DICOM: <strong style="color:#f1f5f9;">20 anos</strong> (CFM)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 6 — 3 CENÁRIOS
+  ══════════════════════════════════════════════ -->
+  <div class="slide bg-default">
+    <span class="tag">Sprint 3 — BCP/DRP</span>
+    <h2>Três Cenários de Desastre Cobertos</h2>
+    <div class="g3 fill" style="align-items:start;">
+      <div class="card cl-blue">
+        <div style="font-size:26px; margin-bottom:7px;">💻</div>
+        <h3>Cenário 1 — AM01<br><span style="color:#f1f5f9; font-size:15px;">Falha de Hardware</span></h3>
+        <div style="margin:9px 0; display:flex; gap:7px; flex-wrap:wrap;">
+          <span class="badge bv-red">P1 — Alta</span><span class="badge bv-yellow">RTO 2h</span><span class="badge bv-gray">RPO 1h</span>
+        </div>
+        <ul class="bl" style="font-size:13px;">
+          <li>Servidor inacessível por mais de 5 min</li>
+          <li>Restaurar NAS local (Cópia 1)</li>
+          <li>Alternativa: Amazon S3 (Cópia 2)</li>
+          <li>Ativar servidor de contingência</li>
+        </ul>
+        <div style="margin-top:10px; padding:7px 9px; background:rgba(37,99,235,0.15); border-radius:6px; font-size:12px; color:#93c5fd;"><strong>TESTADO</strong> — Exercício de mesa 02/06/2026</div>
+      </div>
+      <div class="card cl-red">
+        <div style="font-size:26px; margin-bottom:7px;">🔒</div>
+        <h3>Cenário 2 — AM02<br><span style="color:#f1f5f9; font-size:15px;">Ransomware</span></h3>
+        <div style="margin:9px 0; display:flex; gap:7px; flex-wrap:wrap;">
+          <span class="badge bv-red">P1 — Alta</span><span class="badge bv-red">RTO 8h</span><span class="badge bv-yellow">RPO 1h</span>
+        </div>
+        <ul class="bl" style="font-size:13px;">
+          <li>Isolar rede IMEDIATAMENTE</li>
+          <li style="color:#f87171; font-weight:600;">NUNCA pagar o resgate</li>
+          <li>Restaurar Amazon S3 (Cópia 2 — limpa)</li>
+          <li>Notificar ANPD se houver vazamento</li>
+        </ul>
+        <div style="margin-top:10px; padding:7px 9px; background:rgba(185,28,28,0.2); border-radius:6px; font-size:12px; color:#fca5a5;"><strong>DOCUMENTADO</strong> + proc. DICOM (Sprint 6)</div>
+      </div>
+      <div class="card cl-orange">
+        <div style="font-size:26px; margin-bottom:7px;">🔥</div>
+        <h3>Cenário 3 — AM03<br><span style="color:#f1f5f9; font-size:15px;">Incêndio / Desastre</span></h3>
+        <div style="margin:9px 0; display:flex; gap:7px; flex-wrap:wrap;">
+          <span class="badge bv-gray">P3 — Baixa</span><span class="badge bv-red">RTO 48–72h</span>
+        </div>
+        <ul class="bl" style="font-size:13px;">
+          <li>Evacuar pessoal — prioridade absoluta</li>
+          <li>Acionar Bombeiros: 193</li>
+          <li>HD off-site 30+ km (Cópia 3)</li>
+          <li>Operar da unidade não afetada</li>
+        </ul>
+        <div style="margin-top:10px; padding:7px 9px; background:rgba(194,65,12,0.2); border-radius:6px; font-size:12px; color:#fdba74;"><strong>DOCUMENTADO</strong> — Sprint 3, Seção 3.3</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 7 — COMUNICAÇÃO
+  ══════════════════════════════════════════════ -->
+  <div class="slide bg-blue">
+    <span class="tag">Sprint 4 — Plano de Comunicação</span>
+    <h2>Árvore de Escalada de Incidentes</h2>
+    <div class="g2 fill" style="align-items:start; gap:18px;">
+      <div class="col" style="gap:8px; padding-top:4px;">
+        <div class="flow-row"><div class="flow-dot" style="background:#ef4444;"></div><div><strong style="color:#f1f5f9;">Detecção do Incidente</strong><br><span style="font-size:12px; color:#64748b;">Zabbix · Usuário · Observação direta</span></div></div>
+        <div class="flow-line"></div>
+        <div class="flow-row"><div class="flow-dot"></div><div style="flex:1;"><strong style="color:#93c5fd;">Nível 1 — Equipe Técnica</strong><br><span style="font-size:12px; color:#64748b;">Guilherme + Yan · Avalia e contém</span></div><span style="font-size:11px; color:#475569; margin-left:auto;">≤ 10 min</span></div>
+        <div class="flow-line"></div>
+        <div class="flow-row"><div class="flow-dot"></div><div style="flex:1;"><strong style="color:#93c5fd;">Nível 2 — Liderança</strong><br><span style="font-size:12px; color:#64748b;">Filipe Santos · Coordena e decide</span></div><span style="font-size:11px; color:#475569; margin-left:auto;">≤ 20 min</span></div>
+        <div class="flow-line"></div>
+        <div style="display:flex; gap:10px;">
+          <div style="flex:1; background:var(--card); border-radius:8px; padding:10px 12px;"><strong style="font-size:13px; color:#93c5fd;">Nível 3</strong><br><span style="font-size:12px; color:#94a3b8;">Direção</span><br><span style="font-size:11px; color:#475569;">≤ 30 min</span></div>
+          <div style="flex:1; background:rgba(185,28,28,0.15); border:1px solid rgba(185,28,28,0.25); border-radius:8px; padding:10px 12px;"><strong style="font-size:13px; color:#fca5a5;">Nível 4 — LGPD</strong><br><span style="font-size:12px; color:#94a3b8;">ANPD + Titulares</span><br><span style="font-size:11px; color:#475569;">≤ 72h (art. 48)</span></div>
+        </div>
+      </div>
+      <div class="col" style="gap:11px;">
+        <div class="card cl-blue">
+          <h3>Formulários Oficiais</h3>
+          <ul class="bl" style="font-size:13px;">
+            <li><strong style="color:#f1f5f9;">Registro de Incidente</strong> (INC-AAAA-NNN) — preenchido a cada ativação</li>
+            <li><strong style="color:#f1f5f9;">Relatório de Não Conformidade</strong> (RNC-AAAA-NNN) — quando teste falha</li>
+            <li><strong style="color:#f1f5f9;">Notificação ANPD</strong> — modelo pronto no Sprint 4</li>
+          </ul>
+        </div>
+        <div class="card cl-green">
+          <h3>Script para Recepção (Sprint 6)</h3>
+          <p style="font-size:13px;">4 modelos padronizados de comunicação para pacientes em espera — criados a partir do gap identificado no exercício de mesa.</p>
+        </div>
+        <div class="card cl-gray">
+          <h3>Matriz RACI</h3>
+          <p style="font-size:13px;">15 atividades × 6 membros — papéis R/A/C/I definidos para cada ação do plano (Sprint 4, Seção 2).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 8 — EXERCÍCIO DE MESA
+  ══════════════════════════════════════════════ -->
+  <div class="slide bg-default">
+    <span class="tag">Sprint 4 — Simulação · 02/06/2026</span>
+    <h2>Exercício de Mesa — Cenário 1: Falha de Hardware</h2>
+    <div class="g2 fill" style="align-items:start;">
+      <div class="col" style="gap:11px;">
+        <div class="card">
+          <h3>Cenário Simulado</h3>
+          <p style="font-size:13px;">14h32 — Servidor da Unidade Central inacessível. 47 pacientes agendados para a tarde, 12 já na recepção. Zabbix emite alertas consecutivos.</p>
+        </div>
+        <table style="font-size:12px;">
+          <thead><tr><th>Etapa</th><th>Tempo</th><th>Meta</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Diagnóstico físico</td><td>12 min</td><td>15 min</td><td class="tg">-3 min ✓</td></tr>
+            <tr><td>Comunicação interna</td><td>8 min</td><td>10 min</td><td class="tg">-2 min ✓</td></tr>
+            <tr><td>Servidor de contingência</td><td>32 min</td><td>25 min</td><td class="tr">+7 min !</td></tr>
+            <tr><td>Restauração do backup</td><td>45 min</td><td>45 min</td><td class="tg">OK ✓</td></tr>
+            <tr><td>Validação SHA-256</td><td>14 min</td><td>15 min</td><td class="tg">-1 min ✓</td></tr>
+            <tr><td>Redirecionamento DNS</td><td>9 min</td><td>10 min</td><td class="tg">-1 min ✓</td></tr>
+            <tr><td>Comunicação de retomada</td><td>5 min</td><td>5 min</td><td class="tg">OK ✓</td></tr>
+            <tr><td><strong>TOTAL</strong></td><td><strong>125 min</strong></td><td><strong>120 min</strong></td><td class="ty">+5 min</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="col" style="gap:11px;">
+        <div class="g2" style="gap:11px;">
+          <div class="stat"><div class="stat-n tg">47 min</div><div class="stat-l">RPO real<br>(meta ≤ 60 min)</div></div>
+          <div class="stat"><div class="stat-n ty">2h05min</div><div class="stat-l">RTO real<br>(meta ≤ 2h)</div></div>
+        </div>
+        <div class="card cl-green">
+          <h3>O que funcionou bem</h3>
+          <ul class="bl" style="font-size:13px;">
+            <li>100% dos checksums SHA-256 validados</li>
+            <li>Toda a equipe conhecia seus papéis</li>
+            <li>Comunicação interna dentro dos prazos da RACI</li>
+          </ul>
+        </div>
+        <div class="card cl-orange">
+          <h3>Desvios identificados</h3>
+          <ul class="bl" style="font-size:13px;">
+            <li>Config. do servidor não estava no binder físico → <span class="badge bv-yellow">Corrigindo</span></li>
+            <li>Sem script para comunicar pacientes → <span class="badge bv-green">Resolvido Sprint 6</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 9 — ANÁLISE DE GAPS
+  ══════════════════════════════════════════════ -->
+  <div class="slide bg-default">
+    <span class="tag">Sprint 5 — Análise de Gaps</span>
+    <h2>Matriz de Cobertura — 6 Ativos × 5 Dimensões</h2>
+    <div class="g2 fill" style="align-items:center;">
+      <div>
+        <div style="display:flex; gap:12px; margin-bottom:16px;">
+          <div class="stat" style="flex:1;"><div class="stat-n tg">21</div><div class="stat-l">✓ COBERTO (70%)</div></div>
+          <div class="stat" style="flex:1;"><div class="stat-n ty">8</div><div class="stat-l">~ PARCIAL (27%)</div></div>
+          <div class="stat" style="flex:1;"><div class="stat-n tr">1→0</div><div class="stat-l">! GAP (Sprint 6)</div></div>
+        </div>
+        <div class="card cl-green" style="margin-bottom:11px;">
+          <h3>Gap único identificado — encerrado no Sprint 6</h3>
+          <p style="font-size:13px;"><strong style="color:#f1f5f9;">A05 (Laudos DICOM) × AM02 (Ransomware)</strong><br>Sem procedimento específico de isolamento e recuperação DICOM em caso de ciberataque.</p>
+          <div style="margin-top:9px;"><span class="badge bv-green">✓ Procedimento criado — Sprint 6</span></div>
+        </div>
+        <div class="card">
+          <h3>Nível de risco dos gaps</h3>
+          <ul class="bl" style="font-size:13px;">
+            <li>Nível Alto: <strong style="color:#4ade80;">zero</strong> — sem vulnerabilidade crítica</li>
+            <li>Nível Médio: 3 (G03 encerrado, G05 e G06 planejados)</li>
+            <li>Nível Baixo: 4 (ações de melhoria contínua)</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <table style="font-size:12px;">
+          <thead><tr><th>Ativo</th><th>AM01</th><th>AM02</th><th>AM03</th><th>Backup</th><th>Doc.</th></tr></thead>
+          <tbody>
+            <tr><td><strong>A01 PEP</strong></td><td class="tg">✓</td><td class="ty">~</td><td class="tg">✓</td><td class="tg">✓</td><td class="tg">✓</td></tr>
+            <tr><td><strong>A02 BD</strong></td><td class="tg">✓</td><td class="ty">~</td><td class="tg">✓</td><td class="tg">✓</td><td class="tg">✓</td></tr>
+            <tr><td><strong>A03 Agend.</strong></td><td class="tg">✓</td><td class="ty">~</td><td class="tg">✓</td><td class="tg">✓</td><td class="tg">✓</td></tr>
+            <tr><td><strong>A04 Fin.</strong></td><td class="tg">✓</td><td class="ty">~</td><td class="tg">✓</td><td class="tg">✓</td><td class="tg">✓</td></tr>
+            <tr><td><strong style="color:#fb923c;">A05 Laudos</strong></td><td class="ty">~</td><td class="tg" style="font-size:15px;">✓*</td><td class="ty">~</td><td class="tg">✓</td><td class="ty">~</td></tr>
+            <tr><td><strong>A06 VPN</strong></td><td class="tg">✓</td><td class="tg">✓</td><td class="ty">~</td><td class="tg">✓</td><td class="tg">✓</td></tr>
+          </tbody>
+        </table>
+        <div style="margin-top:8px; font-size:11px; color:#64748b;">✓ Coberto &nbsp;|&nbsp; ~ Parcial &nbsp;|&nbsp; *Encerrado no Sprint 6</div>
+        <div class="card" style="margin-top:11px; background:rgba(37,99,235,0.1); border-color:rgba(37,99,235,0.25);">
+          <p style="font-size:12px; color:#93c5fd;">Diagrama completo: <code>evidencias/tabela_gap_analysis.svg</code></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 10 — KPIs
+  ══════════════════════════════════════════════ -->
+  <div class="slide bg-default">
+    <span class="tag">Sprint 5 — Indicadores de Desempenho</span>
+    <h2>KPIs — Resultados e Metas</h2>
+    <div class="fill col" style="justify-content:center;">
+      <div class="kpi-wrap">
+        <div class="kpi"><div><div class="kpi-label">RPO real — A01/A02</div><div class="kpi-sub">Meta: ≤ 60 min</div></div><div class="kpi-val tg">47 min ✓</div></div>
+        <div class="kpi"><div><div class="kpi-label">RTO real — A01/A02</div><div class="kpi-sub">Meta: ≤ 2h</div></div><div class="kpi-val ty">2h05min ≈</div></div>
+        <div class="kpi"><div><div class="kpi-label">Taxa de aderência ao RTO</div><div class="kpi-sub">Meta: 100%</div></div><div class="kpi-val ty">97,9%</div></div>
+        <div class="kpi"><div><div class="kpi-label">Integridade de backup</div><div class="kpi-sub">Checksums SHA-256</div></div><div class="kpi-val tg">100% ✓</div></div>
+        <div class="kpi"><div><div class="kpi-label">Cenários documentados</div><div class="kpi-sub">Com procedimento completo</div></div><div class="kpi-val tg">3 / 3 ✓</div></div>
+        <div class="kpi"><div><div class="kpi-label">Cobertura backup 3-2-1</div><div class="kpi-sub">Cópias configuradas</div></div><div class="kpi-val tg">3 / 3 ✓</div></div>
+        <div class="kpi"><div><div class="kpi-label">Ativos com RPO/RTO</div><div class="kpi-sub">Parâmetros formalizados</div></div><div class="kpi-val tg">6 / 6 ✓</div></div>
+        <div class="kpi"><div><div class="kpi-label">Membros com papel no BCP</div><div class="kpi-sub">Definidos na Matriz RACI</div></div><div class="kpi-val tg">6 / 6 ✓</div></div>
+        <div class="kpi"><div><div class="kpi-label">Desvios com plano de correção</div><div class="kpi-sub">Exercício de mesa</div></div><div class="kpi-val tg">2 / 2 ✓</div></div>
+        <div class="kpi"><div><div class="kpi-label">Conformidade normativa</div><div class="kpi-sub">Pós-Sprint 6</div></div><div class="kpi-val ty">~85%</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 11 — CONFORMIDADE
+  ══════════════════════════════════════════════ -->
+  <div class="slide bg-blue">
+    <span class="tag">Sprints 5 e 6 — Análise Normativa</span>
+    <h2>Aderência às Normas e Legislação</h2>
+    <div class="g2 fill" style="align-items:start;">
+      <div class="col" style="gap:11px;">
+        <div class="card cl-blue">
+          <h3>ABNT NBR ISO/IEC 27001:2013</h3>
+          <table style="font-size:12px;"><tbody>
+            <tr><td>A.12.3.1 — Backup de informações</td><td class="tg">✓</td></tr>
+            <tr><td>A.16.1 — Gestão de incidentes</td><td class="tg">✓</td></tr>
+            <tr><td>A.17.1.1/2 — Planejamento de continuidade</td><td class="tg">✓</td></tr>
+            <tr><td>A.17.1.3 — Verificação</td><td class="ty">~ Parcial</td></tr>
+          </tbody></table>
+        </div>
+        <div class="card cl-gray">
+          <h3>ABNT NBR 15999-1:2007</h3>
+          <table style="font-size:12px;"><tbody>
+            <tr><td>BIA — Análise de impacto nos negócios</td><td class="tg">✓</td></tr>
+            <tr><td>Estratégias de continuidade</td><td class="tg">✓</td></tr>
+            <tr><td>Desenvolvimento dos planos</td><td class="tg">✓</td></tr>
+            <tr><td>Exercícios e testes</td><td class="ty">~ Parcial</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div class="col" style="gap:11px;">
+        <div class="card cl-orange">
+          <h3>NIST SP 800-34 Rev. 1</h3>
+          <table style="font-size:12px;"><tbody>
+            <tr><td>Fases 1–5 (planejamento completo)</td><td class="tg">✓</td></tr>
+            <tr><td>Fase 6 — Testes e exercícios</td><td class="tg">✓</td></tr>
+            <tr><td>Fase 7 — Manutenção contínua</td><td class="ty">~ Parcial</td></tr>
+          </tbody></table>
+        </div>
+        <div class="card cl-red" style="background:rgba(185,28,28,0.12);">
+          <h3>LGPD — Lei nº 13.709/2018</h3>
+          <table style="font-size:12px;"><tbody>
+            <tr><td>Art. 46 — Segurança de dados de saúde</td><td class="tg">✓</td></tr>
+            <tr><td>Art. 48 — Notificação ANPD em 72h</td><td class="tg">✓</td></tr>
+            <tr><td>Art. 50 — Política de privacidade</td><td class="tg">✓ Sprint 6</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 12 — MELHORIA CONTÍNUA
+  ══════════════════════════════════════════════ -->
+  <div class="slide bg-default">
+    <span class="tag">Sprint 5 — Plano de Melhoria</span>
+    <h2>Calendário Pós-Implantação — Jul/2026 a Jun/2027</h2>
+    <div class="fill col" style="justify-content:center;">
+      <div class="g2" style="gap:9px;">
+        <div class="card cl-blue"><strong style="color:#93c5fd; font-size:12px;">Jul/2026</strong><p style="font-size:13px; margin-top:4px;">Binders físicos + scripts de comunicação para recepção distribuídos</p></div>
+        <div class="card cl-gray"><strong style="color:#94a3b8; font-size:12px;">Ago/2026</strong><p style="font-size:13px; margin-top:4px;">1º teste de restauração mensal automatizado — <code>teste_restauracao.sh</code></p></div>
+        <div class="card cl-red"><strong style="color:#fca5a5; font-size:12px;">Set/2026</strong><p style="font-size:13px; margin-top:4px;">Exercício de mesa: <strong>Cenário 2 — Ransomware</strong></p></div>
+        <div class="card cl-gray"><strong style="color:#94a3b8; font-size:12px;">Out/2026</strong><p style="font-size:13px; margin-top:4px;">Rotação trimestral do HD off-site com verificação de integridade</p></div>
+        <div class="card cl-orange"><strong style="color:#fdba74; font-size:12px;">Dez/2026</strong><p style="font-size:13px; margin-top:4px;">Exercício semestral: <strong>Cenário 3 — Incêndio</strong></p></div>
+        <div class="card cl-blue"><strong style="color:#93c5fd; font-size:12px;">Jan/2027</strong><p style="font-size:13px; margin-top:4px;">Revisão anual completa com lições aprendidas incorporadas</p></div>
+        <div class="card cl-gray"><strong style="color:#94a3b8; font-size:12px;">Mar/2027</strong><p style="font-size:13px; margin-top:4px;">2º exercício de mesa anual — cenário definido pelos incidentes reais</p></div>
+        <div class="card cl-green"><strong style="color:#4ade80; font-size:12px;">Jun/2027</strong><p style="font-size:13px; margin-top:4px;">1º teste técnico completo de recuperação em ambiente de homologação</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 13 — CONCLUSÃO
+  ══════════════════════════════════════════════ -->
+  <div class="slide bg-green">
+    <span class="tag">Sprint 6 — Conclusão</span>
+    <h2>Maturidade Alcançada e Resultados Finais</h2>
+    <div class="g2 fill" style="align-items:center; gap:20px;">
+      <div>
+        <div style="background:rgba(22,163,74,0.15); border:2px solid rgba(22,163,74,0.45); border-radius:12px; padding:26px; text-align:center; margin-bottom:14px;">
+          <div style="font-size:12px; color:#4ade80; font-weight:700; letter-spacing:2px; margin-bottom:7px;">NÍVEL DE MATURIDADE ALCANÇADO</div>
+          <div style="font-size:42px; font-weight:900; color:#4ade80; line-height:1;">Nível 3</div>
+          <div style="font-size:17px; color:#f1f5f9; margin-top:3px; font-weight:600;">DEFINIDO</div>
+          <p style="font-size:13px; color:#94a3b8; margin-top:10px; line-height:1.5;">"Plano documentado, comunicado e testado parcialmente. Equipe preparada para responder a incidentes comuns."</p>
+        </div>
+        <div class="card cl-green">
+          <h3>Como atingir o Nível 4</h3>
+          <ul class="bl" style="font-size:13px;">
+            <li>Implantar formalmente e executar o calendário</li>
+            <li>Testar os 3 cenários com dados reais</li>
+            <li>Coletar métricas históricas de recuperação</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <h3 style="margin-bottom:12px; color:#f1f5f9;">Entregáveis do Projeto</h3>
+        <div class="g2" style="gap:10px; margin-bottom:14px;">
+          <div class="stat"><div class="stat-n tg">7</div><div class="stat-l">documentos técnicos</div></div>
+          <div class="stat"><div class="stat-n" style="color:#60a5fa;">4</div><div class="stat-l">diagramas SVG</div></div>
+          <div class="stat"><div class="stat-n" style="color:#fb923c;">2</div><div class="stat-l">scripts bash</div></div>
+          <div class="stat"><div class="stat-n" style="color:#a78bfa;">2</div><div class="stat-l">ferramentas HTML</div></div>
+        </div>
+        <div class="card" style="background:rgba(37,99,235,0.12); border-color:rgba(37,99,235,0.3);">
+          <h3>Conformidade final (~85%)</h3>
+          <ul class="bl" style="font-size:13px;">
+            <li>Requisitos da disciplina: <strong style="color:#4ade80;">100% atendidos</strong></li>
+            <li>ABNT NBR ISO/IEC 27001 + NBR 15999 cobertos</li>
+            <li>LGPD arts. 46, 48 e 50: <strong style="color:#4ade80;">100% atendidos</strong></li>
+            <li>NIST SP 800-34 fases 1–6 concluídas</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 14 — REFERÊNCIAS
+  ══════════════════════════════════════════════ -->
+  <div class="slide bg-dark">
+    <span class="tag">Referências Bibliográficas — ABNT NBR 6023:2018</span>
+    <div class="g2 fill" style="align-items:start; gap:32px;">
+      <div>
+        <h2 style="margin-bottom:14px;">Fontes Utilizadas</h2>
+        <div class="ref"><strong>ABNT NBR ISO/IEC 27001:2013.</strong> Sistemas de gestão da segurança da informação. Rio de Janeiro: ABNT, 2013.</div>
+        <div class="ref"><strong>ABNT NBR 15999-1:2007.</strong> Gestão de continuidade de negócios — Código de prática. Rio de Janeiro: ABNT, 2007.</div>
+        <div class="ref"><strong>BRASIL.</strong> Lei nº 13.709, de 14 ago. 2018. <strong>Lei Geral de Proteção de Dados Pessoais (LGPD).</strong> Brasília: Presidência da República, 2018.</div>
+        <div class="ref">LYRA, M. R. <strong>Segurança e Auditoria em Sistemas de Informação.</strong> Rio de Janeiro: Ciência Moderna, 2008.</div>
+        <div class="ref">NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY. <strong>NIST SP 800-34 Rev. 1.</strong> Gaithersburg: NIST, 2010.</div>
+        <div class="ref">SÊMOLA, M. <strong>Gestão da Segurança da Informação:</strong> uma visão executiva. 2. ed. Rio de Janeiro: Elsevier, 2014.</div>
+      </div>
+      <div class="fill center">
+        <div style="text-align:center;">
+          <div class="logo-box" style="margin: 0 auto 18px;">VC</div>
+          <div style="font-size:34px; font-weight:900; margin-bottom:7px;">Obrigado!</div>
+          <div style="font-size:16px; color:#64748b; margin-bottom:20px;">Perguntas?</div>
+          <div style="font-size:12px; color:#475569; margin-bottom:4px;">Projeto Integrado II · TADS Anhanguera</div>
+          <div style="font-size:12px; color:#475569; margin-bottom:16px;">Semestre 1/2026 · Prof. Roberto Maia</div>
+          <div class="chips" style="justify-content:center;">
+            <div class="chip">Filipe Santos</div>
+            <div class="chip">Guilherme Maciel</div>
+            <div class="chip">Bruno Vila</div>
+            <div class="chip">Rafael</div>
+            <div class="chip">Yan</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- #deck -->
+
+<button class="nav-btn" id="btn-prev" onclick="go(cur-1)">&#8249;</button>
+<button class="nav-btn" id="btn-next" onclick="go(cur+1)">&#8250;</button>
+<div id="bar"></div>
+<div id="ctr"></div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const N = slides.length;
+  let cur = 0;
+
+  function go(n) {
+    slides[cur].classList.remove('active');
+    cur = ((n % N) + N) % N;
+    slides[cur].classList.add('active');
+    document.getElementById('bar').style.width = ((cur + 1) / N * 100) + '%';
+    document.getElementById('ctr').textContent = (cur + 1) + ' / ' + N;
+    document.getElementById('btn-prev').style.visibility = cur === 0 ? 'hidden' : 'visible';
+    document.getElementById('btn-next').style.visibility = cur === N - 1 ? 'hidden' : 'visible';
+  }
+
+  document.addEventListener('keydown', e => {
+    if (['ArrowRight','ArrowDown',' '].includes(e.key)) { e.preventDefault(); go(cur+1); }
+    if (['ArrowLeft','ArrowUp'].includes(e.key))         { e.preventDefault(); go(cur-1); }
+  });
+
+  document.getElementById('deck').addEventListener('click', e => {
+    if (e.target.closest('.nav-btn')) return;
+    go(e.clientX > window.innerWidth / 2 ? cur+1 : cur-1);
+  });
+
+  go(0);
+</script>
+</body>
+</html>
